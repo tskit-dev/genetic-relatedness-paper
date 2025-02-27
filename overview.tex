@@ -1,0 +1,75 @@
+Genetic relatedness between individuals (or populations) can mean many things.
+%
+At its most general, given a set of individuals, genetic relatedness refers
+to some notion of \textit{similarity} between individuals, where similarity
+can be defined according to pedigree, genotype, or genealogy.
+%
+The aim of this project is twofold:
+
+\begin{enumerate}
+    \item Harmonise the different notions of genetic relatedness through the
+    lens of tree sequences, outlining the various use cases.
+    \item Develop efficient algorithms to compute genetic relatedness and perform
+    operations with genetic relatedness information.
+\end{enumerate}
+
+\subsection*{Update: $6^{th}$ April 2022}
+
+A couple of related preprints have come out in the last few months that study
+the use of the ARG-based relatedness matrix in PCA \citep{fan2022genealogical}
+and GWAS, heritability estimation, and mixed effects modelling \citep{zhang2023biobank}.
+%
+There is overlap in some of the ideas that we've been exploring but there's still
+room for an in-depth treatment of genetic relatedness through the lens of tree sequences.
+%
+The proposal is to focus on objective 1 for now and put together the more
+conceptual piece that we've been discussing.
+%
+We've got a lot of material already so it's mostly just a matter of knitting
+everything together.
+%
+Some additional work that might be worth exploring:
+
+\begin{itemize}
+    \item Comparison of site- and branch-based relatedness matrices from the ``unified genealogy'' tree sequence
+    \item Comparison of site- and branch-based PCA from the ``unified genealogy'' tree sequence
+    \item Discussion of IBD relatedness (i.e. linking into Georgia's work)
+    \item Discussion of `A genealogical interpretation of PCA' \citep{mcvean2009genealogical} in the context of tree sequences
+\end{itemize}
+
+\newpage
+
+\subsection*{Where are we? (Efficient implementation - parked for now 06/04/22)}
+
+In terms of implementation in \texttt{tskit}, we have a
+\href{https://tskit.dev/tskit/docs/stable/python-api.html#tskit.TreeSequence.genetic_relatedness}{function}
+to compute genetic relatedness through the statistics framework.
+%
+We also have a \todo{Brieuc to add tests and documentation in order to get this merged}
+\href{https://github.com/tskit-dev/tskit/pull/1246}{pull request} to add a `linear operator'
+function that multiplies the genetic relatedness matrix with an arbitrary vector.
+%
+A limitation of the current implementation of \texttt{ts.genetic\_relatedness} is that
+it is relatively slow, especially when it comes to repeated matrix multiplications as
+required in PCA \todo{Brieuc to put together a notebook showing the differences + compare algorithmic complexity}
+\todo{Peter to do a few back-of-the-envelope algorithmic complexity calculations}.
+%
+One possible explanation that we'd like to rule out is that caching is slowing us down
+- see  \href{https://github.com/tskit-dev/tskit/pull/1937}{this PR}. \smallskip
+\todo[inline]{Jerome to have a quick look at this}
+
+We're currently investigating the use of \href{https://tskit.dev/tskit/docs/stable/python-api.html#tskit.TreeSequence.ibd_segments}{\texttt{ts.ibd\_segments}}
+as an alternative, approximate way to compute genetic relatedness.
+%
+Preliminary results suggest that the two methods are indeed equivalent,
+though we'd also like to theoretically confirm the equivalence of the two algorithms.
+%
+There doesn't seem to be a large gain in terms of computational efficiency,
+but there's still a bit of work to do to confirm this, particularly along
+the lines of approximate computation.
+%
+\todo[inline]{Georgia to share function to compute genetic relatedness using \texttt{ts.ibd\_segments}}
+
+The remainder of this document is a work-in-progress on the different notions
+of genetic relatedness, along with a detailed description of our motivation for
+and current implementation of \texttt{ts.genetic\_relatedness}. \smallskip

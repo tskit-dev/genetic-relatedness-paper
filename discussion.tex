@@ -1,0 +1,58 @@
+
+% - ARGs and tree sequences
+
+Recent advances in ARG-based inference have generated significant interest in leveraging ARG-based methods for genetic analyses. In this paper, we examine the relationship between different definitions of genetic relatedness, presenting a unifying framework that connects these concepts through a trait-centric perspective. While relatedness metrics have numerous downstream applications, we expect this perspective to be particularly impactful in phenotypic analyses, such as accounting for population structure in genome-wide association studies and improving genomic prediction, including polygenic scoring.
+
+% - branch relatedness and branch GRM
+
+\todo[inline]{Cite genetic vs genealogical/pedigree ancestors papers and why branch GRM can be more variable than pedigree GRM even when we do it across chromosomes - see results}
+
+% TODO: discuss our variance in branch GRM and Fan et al. vGRM
+
+% \paragraph{uses of relatedness}
+% \begin{itemize}
+%     \item summary of whole-genome genetic relatedness in a single number
+%     \item visualisation, say via PCA
+%     \item ontrolling for population "structure" and associated environmental effects in genome-wide association studies ("indirect" use)
+%     \item "direct" use in genome-wide association studies and genomic prediction
+% \end{itemize}
+
+% - Efficient branch GRM-vector products 
+% - Branch PCA
+
+This paper also introduces new algorithms to efficiently perform branch-based relatedness computations. Our approach to computing the branch-based GRM is similar to the algorithm for pedigree-based GRM \citep{emik1949systematic, cruden1949computation, henderson1976simple} in that the algorithm traverses the tree sequence to calculate the GRM for the chosen samples. Additionally, we develop a method for performing matrix-vector product calculations with the branch-based GRM without storing the full matrix in memory.  These algorithms leverage the sequential nature of the tree sequence data structure to reduce the required number of operations. \todo{\@Gregor - is this right? I've taken this from the old discussion but I'm not sure which bit of the pedigree-based computations are sequential so I may have misunderstood} This is akin to similar algorithms developed for pedigrees \citep{colleau2002indirect}. Such matrix-vector product calculations facilitate the efficient implementation of common analyses based on ARG-based relatedness, including principal component analyses.
+
+Our branch-based GRM is equivalent to the eGRM put forward by \cite{fan2022genealogical} and the ARG-GRM put forward by \cite{zhang2023biobank}. The `e' in eGRM denotes `expected', reflecting that it represents the expectation of the canonical (site-based) GRM under a Poisson mutation process along ARG branches. We adopt the term \textit{branch-based} to highlight that this measure of similarity is derived from the extent of shared branch area between individuals, explicitly distinguishing it from site-based GRMs.
+
+Our approach to computing the branch-based GRM is similar to that of \cite{fan2022genealogical}, relying on traversing all the trees in the tree sequence to compute the GRM. By implementing our method directly in C in tskit, we achieve a moderate reduction in computational time compared to the eGRM package. In contrast, \cite{zhang2023biobank}, approximate the branch-based GRM by sampling new mutations on the branches and computing the standard GRM from these mutations
+\citep{vanraden2008efficient, yang2010common}. While this sampling approach converges to the branch-based GRM under realistic mutation rates and avoids the need to update $n^2$ GRM elements for each branch, it does not compute the GRM exactly. Our method, in contrast, provides an exact computation of the branch-based GRM. Additionally, by implementing efficient matrix-vector product algorithms, we enable branch-based PCA on tree sequences with over one million samples in approximately 30 seconds—far exceeding the computational feasibility of direct PCA on the branch-based GRM, which is limited to around 10,000 samples \citep{fan2022genealogical}.
+
+\todo[inline]{A paragraph on computational scaling}
+% TODO: mention matvec with pedigree and genotype GRMs
+% \cite{colleau2002indirect} described how to obtain pedigree-based GRM
+% for a set of individuals from a pedigree without explicitly calculating the full GRM.
+% %
+% This was achieved by working with the sparse inverse of the pedigree-based GRM and
+% solving a system of equations for the susbset GRM.
+
+% \paragraph{How we relate to \cite{fan2022genealogical} and \cite{zhang2023biobank}
+% and past work with pedigree, phylogenetic trees, and genotypes}
+
+\todo[inline]{TODO: If we touch on IBD, could mention \cite{huang2024estimating}
+have an efficient representation of IBD that is ~linear?
+Estimating evolutionary and demographic parameters via ARG-derived IBD --> maybe that work could be scaled by our algorithm!?}
+
+\todo[inline]{TODO: Paragraph on tslmm}
+
+A trait-centric perspective on relatedness is suggestive of a number of possible extensions. Although our current definition of relatedness assumes equal prior effects across all loci, one could consider alternatives whereby we incorporate prior information on effect sizes. For example, selective pressure means that deleterious alleles with strong effects are removed from the population more quickly and so may justify a prior that is more concentrated around zero. Functional annotations have been used to improve fine-mapping and genomic prediction \citep{weissbrod2020functionally, weissbrod2022leveraging} and could be incorporated to refine branch-based relatedness calculations for trait-based analyses.
+
+\todo[inline]{Miscellaneous bits leftover from initial discussion below}
+Branch-based GRM captures old and recent ancestry, while site-based GRM captures less of the recent ancestry
+\citep[e.g.]{fan2022genealogical, young2022discovering}, suggesting that there would be no need to combine genotype-based GRM with pedigree-based GRM in certain applications spanning a wide range of relatedness \citep[e.g.]{vanraden2008efficient, kemper2021phenotypic}.
+
+By capturing old and recent ancestry,
+branch-based GRM could help with quantitative genomic modellling across ancestry groups
+and with this improve portability of genomic predictions across the groups
+\citep{legarra2021correlation, durvasula2021negative, wang2022challenges, prive2022portability, schultz2022stability, yair2022population}
+
+\todo[inline]{Future work: work across multiple tree sequences to manage multiple chromosomes}

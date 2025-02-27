@@ -1,0 +1,143 @@
+% THIS IS JUST TO KEEP SIGHT OF THE OVERALL STRUCTURE WHILE I AM WRITTING ...
+
+% --- PEDIGREE ----------------------------------------------------------------
+
+\subsection{Pedigree-based relatedness}
+
+% START OF FORMAL PEDIGREE RELATEDNESS WORK BY FISHER & WRIGHT
+\paragraph{Genetic relatedness was first formalised by \cite{wright1922coefficients},
+who introduced the coefficients of relationship and inbreeding in the
+context of a pedigree.}
+
+% WHAT IS A PEDIGREE
+\paragraph{Pedigree is a directed acyclic graph (DAG).} 
+
+% WRIGHT'S RELATIONSHIP COEFFICIENT
+\paragraph{Based on his path analysis of phenotypic values for pedigree
+members, \cite{wright1922coefficients} defined
+\textit{relationship coefficient between individuals $i$ and $j$ as the
+correlation between their genetic values}:}
+
+% WRIGHT'S INBREEDING COEFFICIENT
+\paragraph{\cite{wright1922coefficients} defined
+\textit{inbreeding coefficient of individual $i$ as the correlation
+between values of its genomes (``uniting gametes'')}:}
+
+% EARLY PEDIGREE ALGORITHMS
+\paragraph{\cite{wright1922coefficients} showed how to calculate
+relatedness coefficients in a general pedigree by tracing all pedigree
+lineages between relatives.}
+
+% STAT/QUANT GENETICS WITH PEDIGREES
+\paragraph{The work of Fisher and Wright has laid foundations for
+statistical modelling in quantitative genetics, particularly through the
+use of linear mixed models
+\citep{falconer1996introduction, henderson1984applications,
+lynch1998genetics, mrode2023linear}.}
+
+% MORE PEDIGREE ALGORITHMS
+\paragraph{Algorithms for pedigree-based numerator relationship matrix and
+corresponding linear mixed models leverage pedigree DAG.}
+
+% PEDIGREE RELATEDNESS EXTENSIONS
+\paragraph{There are many extensions of standard pedigree-based relatedness.}
+
+% GAMETIC RELATEDNESS
+\paragraph{Gametic relatedness is defined between the genomes of individuals
+\citep{\citep{smith1985efficient, schaeffer1989inverse} and is equivalent to
+kinship defined in the next sub-section.}
+
+% GROUP RELATEDNESS
+\paragraph{Group relatedness is defined between groups of individuals
+\citep{wright1949genetical, jacquard1975inbreeding, cockerham1976group}.}
+
+% LIMITATIONS OF PEDIGREE INFORMATION
+\paragraph{However, pedigree information is fundamentally limited for
+describing exact genetic relatedness between individuals.}
+
+% --- GENOTYPE - early-years - definitions and still probs on pedigrees -------
+
+\subsection{Genotype-based relatedness\textcolor{red}{~ - early years}}
+
+% START OF FORMAL GENOTYPE RELATEDNESS WORK BY MALECOT - BUT FIRST DEFINE GENOS & ALLELES
+\paragraph{With the discovery of the structure and role of DNA,
+relatedness was redefined with respect to genotypes of individuals.} 
+
+% START OF FORMAL GENOTYPE RELATEDNESS WORK BY MALECOT
+\paragraph{Seminal work on relatedness with respect to genotypes has been
+done by \cite{cotterman1940calculus} and
+\cite{malecot1948mathematiques, malecot1969mathemathics}.}
+
+% INBREEDING & KINSHIP AS PROBABILITIES OF IBD
+\paragraph{Malecot redefined Wright's work based on the
+probability of identity of alleles; representing the
+notion of random sampling of alleles from individuals.}
+
+% WHILE THESE COEFFICIENTS WERE DEFINED ON GENOS, THERE WAS NO GENO DATA, SO PEDIGREES WERE USED
+\paragraph{These genotype-based definitions of relatedness were proposed
+before DNA data was available.}
+
+% POSITIVE AND NEGATIVE VALUES FOR THE COEFFICIENTS
+\paragraph{While Wright's coefficients are based on covariance and
+correlation and can hence be positive or negative,
+Malecot's coefficients are based on probabilities and are hence
+non-negative.}
+
+% WRIGHT'S STATISTICS
+\paragraph{The relative nature of relatedness coefficients is the basis
+for describing relatedness across (sub-)populations that can be defined
+temporally, geographically, or some other grouping.}
+
+% CONNECTION BETWEEN IBS AND IBD & F-STATS
+\paragraph{The relative nature of relatedness coefficients is used to
+connect IBS and IBD in specific settings.}
+
+% COEFFICIENTS BETWEEN GENOTYPES, INSTEAD OF JUST ITS ALLELES
+\paragraph{While inbreeding and kinship coefficients capture information
+about the identity of alleles between individuals, they do not fully
+capture information about the identity of their genotypes.}
+
+% --- GENOTYPE - based on actual marker data ----------------------------------
+
+\subsection{Genotype-based relatedness}
+
+% EARLY GENOTYPE-BASED RELATEDNESS ESTIMATION WITH A FEW TO HUNDREDS OF MARKERS
+\paragraph{Developments of molecular genetics enabled marker data
+generation and estimation of genotype-based relatedness.}
+
+% VARIATION IN RELATEDNESS DUE TO RECOMBINATION - OVERALL AND ALONG GENOME
+\paragraph{Increasing number of markers improved accuracy, but also
+revealed substantial variation from expected relatedness coefficients
+between pairs of individuals - overall as well as along genome regions.}
+
+% MODERN GENOTYPE-BASED RELATEDNESS ESTIMATION WITH MANY GENOME-WIDE MARKERS
+\paragraph{Further developments in molecular genetics enabled genome-wide
+genotyping with SNP arrays and increasingly whole-genome resequencing.}
+
+% SIMPLE ALLELE MATCHING FOR IBS
+\paragraph{The simplest estimator of GRM that measures IBS between
+individuals is based on allele matching.}
+
+% LINEAR MODEL BASED ESTIMATORS OF GRM
+\paragraph{Some popular estimators of GRM are based on linear
+modelling of phenotypic values with genome-wide genotype data.}
+
+% VANRADEN VERSION (THE RATIO OF SUMS ESTIMATOR)
+\paragraph{The ratio of sums estimator of GRM from \cite{vanraden2008efficient} is:}
+
+% AMIN/YANG/GCTA VERSION (THE AVERAGE OF RATIOS)
+\paragraph{The average of ratios estimator of GRM popularised by
+\cite{yang2010common} is:}
+
+% SPEED/LDAK VERSION (THE AVERAGE OF WEIGHTED RATIOS)
+\paragraph{Genome-wide markers densely tag genome variation
+enabling the capture of unknown causal loci, yet not all genome
+regions are equivalently tagged.}
+
+% GRM "extensions"
+\paragraph*{There is large number of extensions of the above three
+GRM estimators for quantitative genetic analyses in different settings.}
+
+% TODO
+\paragraph{Fitting the model \eqref{eqn:fisher_pheno_mat_walpha} with a GRM has
+reinvigorated quantitative genetics.}

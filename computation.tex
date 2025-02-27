@@ -1,0 +1,275 @@
+
+
+
+
+\subsection*{Computation: obtaining the entire matrix}
+
+% GENERAL IDEA OF DIVERGENCE COMPUTATION
+In this section, we describe an efficient algorithm
+for computing the matrix of pairwise divergences from a tree sequence.
+%
+This will be the ``branch statistic'', so that for haploid sampled genomes
+$u$ and $v$, we wish to compute $D(u, v)$, which is the length of the path
+leading from $u$ and $v$ back to their MRCA summed across all sites.
+%
+More formally, suppose that the $k^\text{th}$ tree, $T_k$
+extends over a distance $\ell_k$ along the genome,
+and that $d_{T_k}(u, v)$ is the distance between nodes $u$ and $v$ in that tree.
+%
+Then, we'd like to compute:
+%
+$$ D(u, v) = \sum_k \ell_k d_{T_k}(u, v), $$
+%
+for every $u$ and $v$.
+%
+In this section we assume that we want to compute $D(u, v)$ \emph{only}
+between \emph{leaves} of the tree.
+%
+Also note that although we refer to ``the current tree'',
+this ``tree'' may in fact be a forest
+(that is, the tree may not be connected, and have more than one root).
+
+% EFFICIENT DIVERGENCE MATRIX COMPUTATION - OUTLINE
+To compute the divergence for all pairs simultaneously and efficiently,
+we will move along the tree sequence,
+retaining some information along the way in two places.
+%
+First, for each node $n$,
+the quantity $z(n)$ will represent a contribution to $D$ from the branch above $n$.
+%
+Concretely, the value of $z(n)$ contributes to divergence
+between all pairs of nodes such that one of them is below $n$ and the other is not
+in the current tree.
+%
+Second, for each pair of nodes $m$ and $n$,
+the quantity $w(m, n)$ will represent a contribution to $D$ between the subtrees below $m$ and $n$.
+%
+So, the value of $w(m, n)$ contributes to divergence
+between all pairs of nodes such that one is below $m$ and the other is below $n$.
+%
+This is symmetric, so we will write $w(m, n)$ and $w(n, m)$ for the same quantity.
+%
+Both $z(n)$ and $w(m, n)$ will be zero if $n$ (or, $m$) is not currently in the tree,
+and $w(m, n)$ is zero if $m$ is an ancestor of $n$ or vice-versa.
+%
+When our algorithm is terminated, we will have $w(u, v) = D(u, v)$ for every pair of sample nodes,
+and both $z$ and $w$ zero otherwise.
+
+% EFFICIENT DIVERGENCE MATRIX COMPUTATION - MORE
+Given a tree $T$ and some values in $z$ and $w$,
+we can compute the divergence $D(u, v)$ implied by the current state as follows.
+%
+First, let $\nodes$ denote the set of nodes in the tree sequence,
+let $p_T(n)$ be the parent of $n$ in the tree (or $\phi$ if $n$ is a root)
+and say that $m \leT n$ if $n$ is an ancestor of $m$ in the tree.
+%
+We say that $m$ is a \emph{child} of $n$ if $p(m) = n$.
+%
+Now, let $\ppath(u, v)$ denote the set of nodes from $u$ and $v$ up to (but not including) their MRCA:
+%
+$$
+    \ppath(u, v) = \{ n \in \nodes \;:\;
+    (u \leT n \text{ and } v \nleT n )
+    \text{ or }
+    (u \nleT n \text{ and } v \leT n ) .
+$$
+%
+Now, $D(u, v)$ is computed using all contributions from $\ppath(u, v)$:
+%
+\begin{align} \label{defn:D}
+    D(u, v)
+    =
+    \sum_{n \in \ppath(u, v)} z(n)
+    +
+    \sum_{m, n \in \ppath(u, v) \,:\, m \neq n } w(m, n) .
+\end{align}
+
+% EFFICIENT DIVERGENCE MATRIX COMPUTATION - MORE 2
+The contributions to divergence of each tree will be recorded in $z$,
+and our goal will be to move these contributions into $w$,
+and move entries in $w$ down the tree,
+in a slow manner so that we accumulate as much shared divergence as possible.
+%
+Next, we define some operations on $z$ and $w$
+that don't change the internal state (i.e., don't change $D$).
+
+% EFFICIENT DIVERGENCE MATRIX COMPUTATION - MORE 3
+First, the operation that moves a contribution from $z(n)$ into $w$.
+%
+For this, we will need $\sibs(n)$,
+which will denote the set of nodes that are \emph{siblings} to the path from $n$ up to the root:
+%
+$$
+    \sibs(u) = \{
+        n \in \nodes \; : \;
+        u \nleT n \text{ and }
+        (
+            u \leT p_T(n)
+            \text{ or }
+            p_T(n) = \phi
+        )
+    \} .
+$$
+%
+Note that $\sibs(n)$ also includes the roots of any trees not including $n$,
+if the current tree is disconnected.
+
+\begin{definition}[\texttt{clear\_edge}]
+The operation \texttt{clear\_edge}$(n)$ does:
+\begin{enumerate}
+    \item For each $c \in \sibs(n)$, add $w(n, c) \pluseq z(n)$.
+    \item Set $z(n) = 0$.
+\end{enumerate}
+\end{definition}
+
+Next, the operation that moves an entry from $w(m, n)$ down towards the leaves.
+
+\begin{definition}[\texttt{push\_down}]
+The operation \texttt{push\_down}$(n)$ does,
+for each $u$ with $w(n, u) > 0$,
+\begin{enumerate}
+    \item For each child $c$ of $n$, add $w(c, u) \pluseq w(n, u)$.
+    \item Set $w(n, u) = 0$.
+\end{enumerate}
+\end{definition}
+
+%% This could be a Theorem and then a Proof but not for our target audience, I think?
+Here is a proof that neither operation changes $D$
+(i.e., that if we compute $D(u, v)$ for any $u$ and $v$ before and after the operations,
+we will get the same answer):
+the first never changes $D$, while the second does not as long as $n$ is not equal to $u$ or $v$.
+%
+First, consider \texttt{clear\_edge}$(n)$.
+%
+This operation changes the expression \eqref{defn:D} only if $n \in \ppath(u, v)$.
+%
+However, if $n \in \ppath(u, v)$ then there is a unique node $c \in \sibs(n) \cap \ppath(u, v)$
+(and note that $c \nleT n$ and $n \nleT c$).
+%
+So, if we denote by $D$ the value before  \texttt{clear\_edge}$(n)$ and $D'$ after,
+and similarly for $w$ and $w'$,
+we have that:
+%
+$$
+    D(u, v) - D'(u, v)
+    =
+    z(n)
+    -
+    (w(n, c) - w'(n, c))
+    =
+    z(n) - z(n) = 0 .
+$$
+%
+Next, consider \texttt{push\_down}$(n)$, and assume that $n$ is not $u$ or $v$.
+%
+If $n \in \ppath(u, v)$ then exactly one child $c$ of $n$ is in $\ppath(u, v)$;
+note also that $w(n, c) = 0$.
+%
+So,
+\begin{align*}
+    D(u, v) - D'(u, v)
+    &=
+    \sum_{m \in \ppath(u, v)} w(n, m)
+    -
+    \sum_{m \in \ppath(u, v)} (w(c, m) - w'(c, m)) \\
+    &=
+    \sum_{m \in \ppath(u, v)} (w(n, m) - w(n, m)) \\
+    &= 0.
+\end{align*}
+% End proof.
+
+% This could similarly be a theorem.
+The purpose of the operations above will be to move around contributions to divergence on the tree
+so that when we \emph{change} the tree (i.e., add or remove edges) $D$ will be unchanged.
+%
+To make this concrete, observe that:
+%
+\begin{align}
+    \text{if } z(m) = 0 \qquad & \text{for all } m \ge_T n, \\
+    \text{and } w(m, x) = 0 \qquad & \text{for all } m \ge_T n \text{ and all } x,
+\end{align}
+%
+then \emph{removing the edge above $n$} does not change $D$,
+as computed by \eqref{defn:D}.
+%
+Conversely, the same is true of adding an edge above $n$, as long as we still have a tree.
+%
+To see this, note that removing the edge above $n$
+removes nodes from $\ppath(u, v)$ only if $n \in \ppath(u, v)$,
+and if so, removes those nodes in $\ppath(u, v)$ that are above $n$.
+%
+However, any such node $m$ has $z(m) = w(m, x) = 0$, by assumption.
+
+We introduce one more operation, that makes it possible to remove or add edges
+without changing $D$.
+
+\begin{definition}[\texttt{clear\_spine}]
+    The operation \texttt{clear\_spine}$(n)$ does:
+    let $m_1 \geT m_2 \geT \cdots \geT m_k = n$ be all nodes above $n$, ordered top-down.
+    Then, for each $1 \le j \le k$ do \texttt{push\_down}$(m_j)$ and \texttt{clear\_edge}$(m_j)$.
+\end{definition}
+
+Note that this works \emph{top-down} so that the ``spine'' (i.e., the path above $n$)
+is ``clear'' (i.e., has zero contribution) afterwards.
+
+Finally, we present the algorithm for computing $D$ across a tree sequence.
+%
+This works by storing contributions from branches in $z$,
+and whenever the subtree below a node $n$ changes due to adding or removing of edges below it,
+using \texttt{clear\_edge} and \texttt{push\_down} to move contributions from $n$
+into lower-down entries in $w$.
+%
+In addition to $z$ and $w$ we will have two additional bits of bookkeeping:
+$q(n)$, which will be the last position along the genome that the subtree below $n$ changed,
+and $X$, the current position on the genome.
+
+\begin{taocpalg}{D}{Divergence matrix}
+{
+    Given a sequence of positions $x_i$ for $1 \le i \le N$ along the genome
+    and corresponding sequences of edges to remove ($R_i$) and add ($A_i$) at each position,
+    compute the total branch length divergence $D(u, v)$ for any two leaves $u$ and $v$,
+    if these are leaves along the entire tree sequence.
+    %
+    Let $\ell_T(n)$ be the length of the branch above $n$ in $T$ (or zero, if $n$ has no parent),
+    initialize $q(n) = 0$ for all $n \in \nodes$ and $i = 1$,
+    and at all times, define $z(n) = \ell_T(n) (x_i - q(n))$.
+}
+
+\algstep{D0.}{Initialization}{
+    Build the first tree by adding all edges in $A_0$.
+}
+
+\algstep{D1.}{Remove edges}{
+    For each edge $(c, n) \in R_i$, do \texttt{clear\_edge}$(c)$
+    and \texttt{clear\_spine}$(n)$,
+    Then, 
+    set $q(m) = x_i$ for each $m \ge_T c$
+    and remove the edge.
+}
+
+\algstep{D2.}{Add edges}{
+    For each edge $(c, n) \in A_i$, do \texttt{clear\_spine}$(n)$,
+    Then, add the edge and
+    set $q(m) = x_i$ for each $m \ge_T c$.
+}
+
+\algstep{D3.}{Iteration}{
+    If $i < N$,
+    set $i = i + 1$ and return to \algorithmref{D1}.
+}
+
+\end{taocpalg}
+
+Here is a proof that this algorithm computes the total branch length divergence.
+%
+Let $D_i(u, v)$ be the total branch length divergence up to (and including) the $i^\text{th}$ tree.
+%
+First, observe that for the first tree, $z(n)$ is equal to the contribution of each edge to divergence,
+and so $D$ computed at that point in the algorithm is $D_1$.
+%
+Next, observe that when we move to the next tree,
+since the current position $x_i$ changes, the amount that is added to each $z(n)$ is equal to 
+the contribution of the branch above $n$ in that tree.
+%
+Since the operations above otherwise do not change $D$,
+the result follows by induction.

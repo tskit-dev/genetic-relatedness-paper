@@ -1,0 +1,128 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage{authblk}
+\usepackage[english]{babel}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{bbm}
+\usepackage{mathabx} % for \ldbrack, \rdbrack
+\usepackage{graphicx}
+\usepackage{natbib}
+\bibliographystyle{abbrvnat}
+\usepackage{nicefrac}
+\usepackage{todonotes}
+\usepackage{lineno}
+\linenumbers
+\usepackage{comment}
+\usepackage[acronym]{glossaries}
+\usepackage{xcolor}
+\usepackage{url}
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,
+    urlcolor=blue,
+    citecolor=black
+}
+\usepackage[most]{tcolorbox}
+\usepackage{nicefrac}
+
+%%% MATHS COMMANDS %%%
+\newtheorem{lemma}{Lemma}
+\newtheorem{definition}{Definition}
+\newcommand{\Cov}{\mathbb{C}\text{ov}}
+\newcommand{\Cor}{\mathbb{C}\text{or}}
+\newcommand{\Var}{\mathbb{V}\text{ar}}
+\newcommand{\Prob}{\text{Pr}}
+\newcommand{\N}{\mathcal{N}}
+\renewcommand{\P}{\mathbb{P}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\ident}[2]{\ldbrack#1=#2\rdbrack}
+
+\newcommand{\bsymb}[1]{\boldsymbol{#1}}
+
+\newcommand{\ppath}{\mathcal{P}}
+\newcommand{\sibs}{\mathcal{S}}
+\newcommand{\nodes}{\mathcal{N}}
+\newcommand{\leT}{\le_T}
+\newcommand{\geT}{\ge_T}
+\newcommand{\nleT}{\nleq_T}
+\newcommand{\pluseq}{\mathrel{+}=}
+\newcommand{\minuseq}{\mathrel{-}=}
+\newcommand{\timeseq}{\mathrel{*}=}
+\newcommand{\diveq}{\mathrel{/}=}
+
+\setlength{\marginparwidth}{2cm}
+
+%%% COMMENTS %%%
+\newcommand{\brieuc}[1]{{\textcolor{purple}{{\bf Brieuc:} #1}}}
+\newcommand{\peter}[1]{{\textcolor{orange}{{\bf Peter:} #1}}}
+\newcommand{\jerome}[1]{{\textcolor{green}{{\bf Jerome:} #1}}}
+\newcommand{\gregor}[1]{{\textcolor{blue}{{\bf Gregor:} #1}}}
+\newcommand{\georgia}[1]{{\textcolor{blue}{{\bf Georgia:} #1}}}
+\newcommand{\luke}[1]{{\textcolor{cyan}{{\bf Luke:} #1}}}
+
+%%% ACRONYMS and things %%%
+\newcommand{\eGRM}{\texttt{eGRM}}
+\newcommand{\tskit}{\texttt{tskit}}
+\newcommand{\scipy}{\texttt{scipy}}
+\newcommand{\eigh}{\texttt{eigh}}
+\newcommand{\eigsh}{\texttt{eigsh}}
+\newcommand{\scikitallel}{\texttt{scikit-allel}}
+\newcommand{\ARGneedlelib}{\texttt{ARG-needle-lib}}
+\newcommand{\tsGRM}{\texttt{ts.genetic\_relatedness\_matrix}}
+\newcommand{\tsGR}{\texttt{ts.genetic\_relatedness}}
+\newcommand{\tsGRw}{\texttt{ts.genetic\_relatedness\_weighted}}
+\newcommand{\tsPCA}{\texttt{ts.pca}}
+\newcommand{\msprime}{\texttt{msprime}}
+
+\newacronym{grm}{GRM}{genetic relatedness matrix}
+\newacronym{arg}{ARG}{ancestral recombination graph}
+
+% These macros are borrowed from TAOCPMAC.tex
+\newcommand{\slug}{\hbox{\kern1.5pt\vrule width2.5pt height6pt depth1.5pt\kern1.5pt}}
+\def\xskip{\hskip 7pt plus 3pt minus 4pt}
+\newdimen\algindent
+\newif\ifitempar \itempartrue % normally true unless briefly set false
+\def\algindentset#1{\setbox0\hbox{{\bf #1.\kern.25em}}\algindent=\wd0\relax}
+\def\algbegin #1 #2{\algindentset{#21}\alg #1 #2} % when steps all have 1 digit
+\def\aalgbegin #1 #2{\algindentset{#211}\alg #1 #2} % when 10 or more steps
+\def\alg#1(#2). {\medbreak % Usage: \algbegin Algorithm A (algname). This...
+  \noindent{\bf#1}({\it#2\/}).\xskip\ignorespaces}
+\def\kalgstep#1.{\ifitempar\smallskip\noindent\else\itempartrue
+   \hskip-\parindent\fi
+   \hbox to\algindent{\bf\hfil #1.\kern.25em}%
+   \hangindent=\algindent\hangafter=1\ignorespaces}
+
+\newcommand{\algstep}[3]{\kalgstep #1 [#2] #3 }
+\newenvironment{taocpalg}[3]{%
+\vspace{1em}%
+\algbegin Algorithm #1. ({#2}). #3 }
+{\vspace{1em}}
+
+\newcommand{\algorithmref}[1]{#1}
+
+% This doesn't seem to be working, unusually?
+% from http://tex.stackexchange.com/questions/43648/why-doesnt-lineno-number-a-paragraph-when-it-is-followed-by-an-align-equation/55297#55297
+\ifcsname{patchAmsMathEnvironmentForLineno}\endcsname
+    \newcommand*\patchAmsMathEnvironmentForLineno[1]{%
+      \expandafter\let\csname old#1\expandafter\endcsname\csname #1\endcsname
+      \expandafter\let\csname oldend#1\expandafter\endcsname\csname end#1\endcsname
+      \renewenvironment{#1}%
+         {\linenomath\csname old#1\endcsname}%
+         {\csname oldend#1\endcsname\endlinenomath}}%
+    \newcommand*\patchBothAmsMathEnvironmentsForLineno[1]{%
+      \patchAmsMathEnvironmentForLineno{#1}%
+      \patchAmsMathEnvironmentForLineno{#1*}}%
+    \AtBeginDocument{%
+    \patchBothAmsMathEnvironmentsForLineno{equation}%
+    \patchBothAmsMathEnvironmentsForLineno{align}%
+    \patchBothAmsMathEnvironmentsForLineno{flalign}%
+    \patchBothAmsMathEnvironmentsForLineno{alignat}%
+    \patchBothAmsMathEnvironmentsForLineno{gather}%
+    \patchBothAmsMathEnvironmentsForLineno{multline}%
+\fi

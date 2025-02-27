@@ -1,0 +1,152 @@
+\begin{tcolorbox}[breakable,pad at break*=1mm, colback=blue!5!white,colframe=blue!75!black,title=Box 1: A Brief History of Genetic Relatedness]
+
+% --- PEDIGREE ----------------------------------------------------------------
+
+Genetic relatedness was first formalised by \cite{wright1922coefficients},
+who introduced the coefficients of relationship and inbreeding in the
+context of a pedigree based on the path (correlation) analysis of phenotypic
+values for pedigree members.
+%
+He also showed how to compute these coefficients in a general pedigree by
+tracing all pedigree lineages between relatives.
+%
+\cite{emik1949systematic} and \cite{cruden1949computation} devised a
+simpler procedure to compute these coefficients between all pairs of
+pedigree members, which was later formalised as a recursive algorithm
+\citep{henderson1976simple}.
+%
+The algorithm fills in a symmetric genetic relatedness matrix (GRM), which is
+the key object for statistical genetics, particularly through its use in
+linear mixed models
+\citep{falconer1996introduction, henderson1984applications,
+lynch1998genetics, mrode2023linear}.
+%
+However, pedigree information is limited because
+it can only quantify the relatedness relative to pedigree founders
+\citep{wright1965interpretation, jacquard1975inbreeding},
+pedigrees are increasingly incomplete backwards in time \citep[e.g.][]{legarra2015ancestral}, and
+pedigrees measure expected rather than realized relatedness due to
+recombination and mutation
+\citep[e.g.][]{hill2011variation, thompson2013identity, garciacortes2013variance}.
+
+% --- GENOTYPE EARLY DAYS -----------------------------------------------------
+
+Relatedness was later redefined with respect to genotypes using
+concepts of identity by descent (IBD) and identity by state (IBS) by
+\cite{cotterman1940calculus} and \cite{malecot1948mathematiques, malecot1969mathemathics},
+before DNA data was readily available.
+%
+Early developments of molecular genetics enabled generation of DNA data
+and estimation of genotype-based relatedness
+(see review by \citet{weir2006genetic}).
+%
+As anticipated by \cite{thompson1975estimation}, early studies found that
+the number of markers is critical for the accuracy of estimates
+and distinguishing different types of relationships for pairs of individuals.
+%
+Increasing the number of markers improved the accuracy, but also
+revealed substantial variation from the expected pedigree relatedness
+between pairs of individuals - overall as well as along genome regions -
+due to recombination \citep{weir2006genetic}.
+
+% --- GENOTYPE RECENT TIME ----------------------------------------------------
+
+Further developments in molecular genetics streamlined genome-wide
+genotyping with SNP arrays and increasingly whole-genome resequencing such
+that today we have genotype datasets with thousands to millions of individuals
+\citep[e.g.][]{turnbull2018hundred, bycroft2018genome, rosfreixedes2020accuracy}.
+%
+This data-abundance has reinvigorated population genetics studies of
+variation within and between populations
+\citep{begun2007population, langley2012genomic}.
+and statistical genetics studies of
+complex trait architecture \citep{burton2007genome, abdellaoui202315} and
+prediction of such traits \citep{meuwissen2001prediction, meuwissen2013accelerating}.
+%
+Depending on the aims of the study \citep{speed2015relatedness}, we now use
+a number of different relatedness estimators
+\citep[e.g.][]{vanraden2008efficient, yang2010common, manichaikul2010robust,
+speed2012improved, weir2017unified, weir2018how, ochoa2021estimating, maryhuard2023fast}.
+%
+Variants of the genotype sample covariance between individuals,
+known as the genomic relationship/relatedness matrix (GRM),
+are commonly used \citep{vanraden2008efficient, yang2010common, speed2012improved}.
+%
+These estimators largely treat loci independently,
+with research on leveraging linkage between loci to improve
+delineation between IBS and IBD relatedness
+\citep[e.g.][]{visscher2006assumption, browning2012identity, thompson2013identity,
+hickey2013genomic, edwards2015two, pook2019haploblocker, saada2020identity}.
+%
+The ease of use is the primary reason for treating genotype loci independently.
+%
+Conversely, to leverage linkage between loci, one needs to phase genotypes, operationally
+define relationships between the resulting haplotypes, and then estimate relatedness
+based on these haplotype relationships.
+
+% --- PHYLOGENY ---------------------------------------------------------------
+
+% TODO
+
+% --- ARG ---------------------------------------------------------------------
+
+There is a growing interest to use ancestral recombination graphs (ARG)
+as the ultimate description of variation in genomes for a sample of individuals, and
+for downstream genetic analyses.
+%
+Recent biological introductions to ARGs are provided by \cite{lewanski2024era},
+\cite{brandt2024promise}, and \cite{nielsen2024inference},
+while \cite{wong2023general} provides a technical discussion on different ways
+of encoding an ARG.
+%
+The appeal of ARGs is that they describe variation in sampled genomes with past DNA
+coalescence/branching, mutation, and recombination events.
+
+TODO: Move ARG description commented bits here
+
+%
+As such, ARGs are also the ultimate description of relatedness between individuals,
+and provide a data structure that can unify different notions of relatedness.
+%
+While ARGs are not observable, there has been substantial progress in inferring ARGs
+from sampled genomes \citep{speidel2019method, kelleher2019inferring, zhang2023biobank, deng2024robust}
+and in using ARGs for downstream genetic analyses (see citations in
+\cite{lewanski2024era}, \cite{brandt2024promise}, and \cite{wong2023general}).
+%
+These analyses include a general framework for efficiently computing statistics \citep{ralph2020efficiently},
+estimating GRM \citep{fan2022genealogical, zhang2023biobank} -
+including IBD GRM \citep{tsambos2022efficient},
+estimating linkage disequilibrium between loci \citep{nowbandegani2023extremely}, and
+using estimated GRM in complex trait analyses \citep{zhang2023biobank, link2023tree, schraiber2024unifying}.
+%
+ARG-based relatedness leverages allele differences between individuals,
+but also linkage between these alleles, hence
+connecting IBS and IBD concepts,
+capturing typed and untyped loci, and
+time-varying changes in population structure due to ancient and recent demographic events
+\citep{fan2022genealogical, young2022discovering, zhang2023biobank, harris2023using}.
+
+% TODO
+%\cite{fan2022genealogical} derived ARG-based relatedness as an expectation of the GRM given an ARG (eGRM).
+%
+%They assumed the Poisson procees of mutations on ARG branches and derived the distribution of genotypes and corresponding GRM for a given ARG, which they summarise with expectation (eGRM) and variance (vGRM).
+%
+%This definition is connected to previous work on time to the most recent common ancestor (TMRCA) for pairs of samples in an ARG \citep{mcvean2009genealogical} and the more general framework of ARG-based statistics \citep{ralph2020efficiently}.
+%
+Operationally, \cite{fan2022genealogical} shifted estimation of relatedness from summing over loci of a genotype matrix and for each locus evaluating genotype similarity between samples (for GRM) to summing over local trees of an ARG and for each local tree evaluating time from MRCA to the root between samples (for eGRM).
+%
+
+%A local tree is spanning a genome region where no recombination events occurred in the history of sampled genomes (haplotypes).
+%
+%Branches of the local tree connect the sampled and ancestral haplotypes representing coalescence/branching events, and mutations on the branches describe haplotype differences.
+
+% PARAGRAPH ON zhang2023biobank
+%\cite{zhang2023biobank} follow the same reasoning as \cite{fan2022genealogical}. They show that eGRM (their ARG-GRM) is equal to a scaled version of the expected Hamming distance matrix between individuals' genotypes (a function of the number of shared alleles).
+%
+%They show that eGRM (their ARG-GRM) is equal to a scaled version of the expected Hamming distance matrix between individuals' genotypes (a function of the number of shared alleles) and equivalently the average TMRCA matrix between individuals in the ARG \citep{mcvean2009genealogical, ralph2020efficiently}.
+
+%
+% However, working with all IBD segments for pairs of individuals in a given ARG is challenging and methods to build eGRM directly from an ARG are needed.
+
+
+\end{tcolorbox}

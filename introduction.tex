@@ -1,0 +1,169 @@
+
+% --- BRIEF INTRO -------------------------------------------------------------
+
+% Paragraph on Background
+Relatedness is one of the central concepts in genetics.
+%
+In its most general sense, genetic relatedness refers to the notion of
+similarity between individuals' genomes.
+%
+These similarities are usually organised as a pairwise comparison of the
+genomes within an individual and between individuals, or groups of
+individuals.
+%
+As one of the central genetic concepts, relatedness is used in many
+applications \citep{weir2006genetic, speed2015relatedness}.
+%
+For example, it has been used to describe genetic variation within and between individuals
+and groups of individuals in population genetics
+\citep{crow2009introduction, charlesworth2010elements},
+to analyse phenotype covariation between close and distant relatives in
+quantitative genetics \citep{falconer1996introduction, lynch1998genetics},
+and to estimate genetic changes in phenotypic variation over time in
+evolutionary genetics \citep{walsh2018evolution, arnold2023evolutionary}.
+%
+Over time, genetic relatedness has been defined according to
+pedigree \citep{fisher1919correlation, wright1922coefficients},
+genotype \citep{cotterman1940calculus, malecot1948mathematiques, malecot1969mathemathics},
+phylogeny \citep{felsenstein1985phylogenies,lynch1991methods},
+coalescent times \citep{slatkin1991inbreeding}, and
+% moving this two paragraphs down -> let's keep it here to create a link to the next paragraph
+% (as in why ARG
+recently, ancestral recombination graph \citep{tsambos2022efficient, fan2022genealogical, zhang2023biobank}.
+%
+% \textcolor{red}{We review the standard definitions in Appendix: A Brief History of Genetic Relatedness}.
+%
+For a set of individuals, we store their pairwise relatedness in a genetic relatedness matrix (GRM).
+    
+% Paragraph on ARG and relatedness
+Ancestral recombination graphs (ARGs) 
+describe the network of inheritance relations between a set of individuals
+via the action of recombination and mutation within a (usually implicit) pedigree
+% JK: rationale for these 4 refs is that they are all review papers from the past
+% year. This covers the various different modern perspectives of what an ARG is.
+\citep{brandt2024promise, lewanski2024era, wong2023general, nielsen2024inference},
+and so provide a common framework in which to consider
+the various concepts of relatedness.
+%
+Although ARGs are not directly observable,
+there has been significant recent progress in inferring ARGs from a sample of DNA sequences
+\citep{speidel2019method, kelleher2019inferring, zhang2023biobank, deng2024robust, gunnarsson2024scalable}.
+%
+This has been accompanied by computational advances that enable
+the highly efficient storage and processing of ARGs
+\citep{kelleher2016efficient, zhu2024variance, dehaas2024enabling};
+in this paper we make use of the \textit{succinct tree sequence} encoding
+\citep{ralph2020efficiently, wong2023general}
+made available through the \tskit{} library.
+
+% Paragraph on Branch relatedness
+In addition to providing a unifying framework,
+ARGs have led to new formulations of relatedness.
+%
+The ``eGRM'' of \citet{fan2022genealogical}
+defines the relatedness between two individuals
+in terms of the total area of branches in the ARG that are ancestral to both,
+similar to previous single-tree definitions \citep{slatkin1991inbreeding}.
+%
+\citet{fan2022genealogical} showed this is the expected genotype relatedness
+under a Poisson model of mutation,
+a special case of a more general duality between ``branch''
+and ``site'' statistics \citep{ralph2019empirical, ralph2020efficiently}.
+%
+The same concept was used by \citet{zhang2023biobank},
+although with different terminology,
+who connected their definition of the ``ARG-GRM'' to
+the time to most recent common ancestor (TMRCA)
+of a single tree \citep{slatkin1991inbreeding, mcvean2009genealogical}.
+%
+There are many different notions of relatedness (see Box 1 for a 
+brief overview), usually defined as an expectation of some 
+quantity (e.g., pedigree relatedness is the expected genetic identity within a pedigree).
+We therefore use the more precise terms 
+``branch relatedness'' and ``branch GRM'' 
+rather than previously proposed ``eGRM'' or ``ARG-GRM'' 
+to avoid confusion (see Methods for more discussion).
+
+As many of the different notions of relatedness
+are connected to each other via some ``expectation''
+(e.g., pedigree relatedness is the expected genetic identity within a pedigree),
+we use the terms ``branch relatedness'' and ``branch GRM'' 
+rather than ``eGRM'' or ``ARG-GRM'' here to avoid confusion
+(see Methods for more discussion).
+
+% Paragraph on Uses of branch GRM
+Recent applications of these methods have highlighted the advantages of
+using branch information to improve genetic analyses.
+%
+\citet{fan2022genealogical} demonstrate that the branch GRM (their ``eGRM'')
+better describes population structure relative to the corresponding genotype GRM,
+even when based on the same genetic information,
+and can provide time-resolved characterisations of population structure
+by considering shared branch areas on particular subsets of the ARG
+defined by specific time intervals.
+%
+\citet{zhang2023biobank} use a branch GRM (their ``ARG-GRM'')
+to estimate heritability and to perform a ``genealogy-wide association scan'',
+showing that this approach is more powerful at detecting the effect of rare variants
+than association analysis on SNP array genotypes imputed to whole-genome sequence genotypes.
+%
+\citet{tsambos2022efficient} developed a method
+to find DNA segments that are identical-by-descent (IBD) for pairs of individuals in a given ARG and
+then summarise these outputs, possibly as an ``IBD GRM'',
+which provides an ARG-based analogue to the pedigree GRM.
+
+% --- GAP ---------------------------------------------------------------------
+
+% Paragraph on The gap
+However,
+current ARG-based relatedness methods are limited in their scalability.
+%
+Operationally, \citet{fan2022genealogical} shifted the estimation of relatedness
+from summing over loci of a genotype matrix and
+for each locus evaluating genotype similarity between samples (for genotype GRM)
+to summing over local trees of an ARG and
+for each local tree evaluating time between samples' MRCA and the root (for branch GRM).
+%
+Iterating over local trees can be computationally expensive for large genomic datasets
+with a huge number of past recombination events, and hence a huge number of local trees.
+%
+% \peter{I think this is true: Both} \citet{fan2022genealogical} and
+% \gregor{Peter: they did it to derive, but not to do computations}
+\citet{zhang2023biobank} also approximate the branch GRM
+by sampling new mutations on the branches of the ARG and
+computing the genotype GRM from these mutations,
+and demonstrate that this approach converges to the true branch GRM with high mutation rates,
+in line with the branch-site duality \citep{ralph2019empirical, ralph2020efficiently}.
+%
+Although these methods have used branch GRM in downstream analyses,
+such as principal component analysis (PCA), estimation of heritability, and genome-wide associations,
+each of these approaches requires storing the full branch GRM in memory,
+limiting analyses between 10,000 and 100,000 individuals
+(depending on the available computational resources).
+
+% --- AIM ---------------------------------------------------------------------
+
+% Paragraph on The aim
+In this paper, we explore the relationships between different notions of relatedness and
+describe several algorithms to perform computations of, and with, the branch GRM.
+%
+Specifically, we show how branch relatedness arises as
+the covariance of a trait process evolving along the branches of an ARG,
+and how this relates to other measures of relatedness.
+%
+We describe a procedure to compute the entire branch GRM by efficiently computing TMRCAs
+using the Schieber-Vishkin algorithm \citep{Schieber1988On}.
+%
+We also develop a new algorithm to perform efficient branch GRM-vector product,
+which avoids storing the full branch GRM in memory.
+%
+This facilitates the use of the randomised singular value decomposition \citep{halko2011findingstructure}
+for PCA of over a million samples.
+%
+We end with a comparison of pedigree and branch relatedness
+for simulated data from a real pedigree of the French-Canadian population of
+\citet{andersontrocme2023genes},
+illustrating the variability of the branch GRM within a fixed pedigree.
+%
+All computations are demonstrated using Python \tskit{} library
+\citep{ralph2020efficiently, kelleher2024tskit}.

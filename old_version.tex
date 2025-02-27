@@ -1,0 +1,286 @@
+
+\subsection{A trait-centric notion of genetic relatedness}
+
+% --- TRAIT --------------------------------------------------------------
+
+\paragraph{Consider a trait whose value can be modelled as the
+sum of effects associated with each allele of an individual.}
+%
+Let the allele of individual $i$ at locus $l$ and genome copy $g$ be
+$G_{i,l,g} \in \mathcal{A}$ for some alphabet $\mathcal{A}$, where
+the additive effect of allele $Z_{l,a}$
+is independently drawn from an arbitrary distribution with mean zero and variance
+$\sigma^2$.
+An individual's genetic value is
+the sum of the effects of all the alleles 
+across all $n_l$ loci,
+averaged across genome copies.
+For instance, a $p$-ploid individual $i$ has genetic value:
+$$
+Z(i) = \frac{1}{p} \sum_{g=1}^p \sum_{l=1}^{n_l} Z_{l,G_{i,l,g}}.
+$$
+The choice to average across genome copies (as opposed to, say, sum them)
+is only consequential for situations where individuals of mixed ploidy are considered
+(e.g., on the X chromosome),
+and implies a particular model of dosage compensation.
+We do not investigate other models futher here.
+
+
+% --- COV ----------------------------------------------------------------
+
+
+\paragraph{For simplicity, we will focus on bi-allelic loci and haploid individuals,
+and postpone a more general discussion to the Appendix.}
+Then, $Z(i) = \sum_{l=1}^{n_l} Z_{l,G_{i,l}}$ with $G_{i,l} \in \{ 0, 1 \}$.
+For two haploid individuals $i$ and $j$, by bilinearity of covariance,
+and letting $[G_{i,l} = G_{j,l}] = 1$ if $G_{i,l} = G_{j,l}$ and
+$[G_{i,l} = G_{j,l}] = 0$ otherwise,
+trait covariance is
+\begin{align} \label{eqn:trait_cov_non_centered}
+    \Cov\left[Z(i), Z(j)\right] &= \sigma^2 \sum_{l=1}^{n_l} [G_{i,l} = G_{j,l}],
+\end{align}
+which is a function of the total number of pairwise allele matches
+between the two individuals. 
+%
+Written in another way,
+let $n(i,l,a)$ denote the number of copies of the $a$ allele that
+individual $i$ carries at locus $l$, we have:
+\begin{align} \label{eqn:trait_cov_non_centered2}
+    \Cov\left[Z(i), Z(j)\right]
+    &= \sigma^2 \sum_{l=1}^{n_l} \sum_{a \in \lbrace 0, 1 \rbrace} n(i,l,a) n(j,l,a).
+\end{align}
+%
+See the Supplementary Material for the generalisation to multi-allelic
+loci and general ploidy, including individuals with different ploidy.
+\todo[inline]{TODO: We also have these bits in the supplement not (fully) covered/mentioned here:
+i) Computing with tree statistics,
+ii) Weighted sums,
+iii) Matrix-vector multiplications,
+iv) Kinship matrices,
+v) Polarisation
+}
+
+% --- COV with invariant loci --------------------------------------------
+
+\paragraph{The above covariance expression \eqref{eqn:trait_cov_non_centered2}
+may not be well-defined in the presence of \emph{invariant} loci.}
+%
+Namely, the addition or removal of loci that are invariant in a population
+should not affect relatedness within the population.
+%
+A common approach to resolve this is to \emph{center} the traits, so that
+invariant and variant loci means are accounted for by a population mean
+(model intercept).
+%
+Suppose we have $n_i$ haploid individuals $1, \dots, n_i$
+with genetic values $Z(1), \ldots, Z(n_i)$.
+%
+Denote $\bar{Z} = (Z(1) + \cdots + Z(n_i))/{n_i}$ and
+$\bar{n}(l,a) = (n(1,l,a) + \cdots + n(n_i,l,a))/{n_i}$.
+%
+Again by bilinearity of covariance,
+trait covariance defined as the central second moment is:
+%
+\begin{align} \label{eqn:trait_cov} % used/referenced
+    \begin{split}
+        &\Cov\left[Z(i) - \bar{Z}, Z(j) - \bar{Z}\right] \\
+        &\qquad = \sigma^2 / 2 \sum_{l=1}^{n_l} \sum_{a \in \lbrace 0, 1 \rbrace}
+            \left(n(i,l,a) - \bar{n}(l,a)\right) \left(n(j,l,a) - \bar{n}(l,a)\right).
+    \end{split}
+\end{align}
+%
+For an invariant locus $l$, we have
+$n(i,l,a) = \bar{n}(l,a)$ for $i \in \lbrace 1, \dots n_i \rbrace$,
+hence such loci do not contribute to the covariance expression
+\eqref{eqn:trait_cov}.
+
+% --- COV & GRM ----------------------------------------------------------
+
+\paragraph{We now highlight a connection to the familiar genotype-based GRM.}
+%
+Let $\mathbf{G} \in \{0, 1\}^{n_i \times n_l}$ be the genotype matrix
+for $n_i$ haploid individuals at $n_l$ loci with 
+$\mathbf{G}_{i,l}=G_{i,l}$.
+%
+We are interested in the covariance between individuals $i$ and $j$,
+that is, between two genome copies in rows of $\mathbf{G}$.
+%
+Let $\mathbf{G}^c$ be the \textit{column-centered} haplotype matrix with
+entries $\mathbf{G}^c_{i,l} = \mathbf{G}_{i,l} - \mathbf{1}p_l$ where
+$p_l = \frac{1}{n_i}\sum_{i=1}^{n_i} \mathbf{G}_{i,l}$ is allele frequency
+at the locus $l$ in the matrix.
+%
+A common definition of covariance is:
+%
+\[ \mathbf{C} = \frac{1}{n_l}\mathbf{G}^c{\mathbf{G}^c}^T, \]
+%
+so that the covariance between individuals $i$ and $j$ based on their genotypes is:
+%
+\begin{align} \label{eqn:grm} % used/referenced
+    \mathbf{C}_{i,j} = \frac{1}{n_l} \sum_{l=1}^{n_l} (\mathbf{G}_{i,l} - p_l)(\mathbf{G}_{j,l} - p_l).
+\end{align}
+%
+This expression \eqref{eqn:grm} is the kernel of many variants of GRM
+\citep{vanraden2008efficient, yang2010common, speed2015relatedness},
+apart from difference between the haploid and diploid setting,
+with the latter being an aggregate form of the former.
+%
+This expression \eqref{eqn:grm} is also equal to \eqref{eqn:trait_cov}
+divided by $n_l$ and setting $\sigma^2=1$.
+% \todo[inline]{TODO: GG is puzzled by this $\sigma$. \brieuc{ I think there was a mistake before and that we should set $\sigma^2 = 1$, not 2, to get equivalence between the two expressions. This is because in Equation \eqref{eqn:trait_cov}, we are summing over both the ancestral allele and the derived allele and so are effectively double-counting for each site. This relates to the footnote that I added earlier.}}
+
+% --- COV 3rd time -------------------------------------------------------
+
+\paragraph{A third interpretation of this covariance can be derived as follows.}
+%
+Consider two haploid individuals $i$ and $j$ and
+two additional random haploid individuals $U$ and $V$ to
+form the random variable $(X_i, X_j, X_U, X_V)$
+that takes the value $(G_{i,l}, G_{j,l}, G_{U,l}, G_{V,l})$
+with probability $\frac{1}{{n_i}^2 n_l}$
+for $U, V = 1, \dots, n_i$ and $l = 1, \dots, n_l$.
+%
+Here we choose the individuals $U$ and $V$ uniformly at
+random, with replacement, from the set of $n_i$ individuals, and
+also choose a locus $l$ uniformly at random from the set of $n_l$ loci.
+%
+In the following, we will repeatedly use the fact that
+$G^2_{i,l} = G_{i,l}$ (since $G_{i,l} \in \{0, 1\}$).
+%
+Conditional on locus $l$, we have:
+%
+\begin{align*}
+    \P(X_i = X_j | l) &= (1 - (G_{i,l} - G_{j,l})^2) \\
+                      &= 1 - G_{i,l} - G_{j,l} + 2G_{i,l}G_{j,l}, \\
+    %
+    \P(X_i = X_U | l) &= \frac{1}{n_i}\sum_{u=1}^{n_i} (1 - (G_{i,l} - G_{u,l})^2) \\
+                      &= \frac{1}{n_i}\sum_{u=1}^{n_i} (1 - G_{i,l} - G_{u,l} + 2G_{i,l}G_{u,l}) \\
+                      &= 1 - G_{i,l} - p_l + 2G_{i,l}p_l, \\
+    %
+    \P(X_U = X_V | l) &= \frac{1}{{n_i}^2}\sum_{u=1}^{n_i}\sum_{v=1}^{n_i} (1 - (G_{u,l} - G_{v,l})^2) \\
+                      &= \frac{1}{{n_i}^2}\sum_{u=1}^{n_i}\sum_{v=1}^{n_i} (1 - G_{u,l} - G_{v,l} + 2G_{u,l}G_{v,l}) \\
+                      &= 1 - 2p_l + 2p^2_l.
+\end{align*}
+%
+\todo[inline]{This next expression of the form $P_{i,j} - P_{i,U} - P_{j,V} + P_{U,V}$
+appears over and over from now onwards.
+It would be great to add a sentence here that describes its intuition/rationale in plain English!
+At the moment I see that this expression gives me the covariance, but I don't see what was the
+idea to get this result. @Brieuc @Peter can you draft something here? \brieuc{Hmmm... does the explanation in the following paragraph help? i.e. of $m(i,j)$. If so, we could bring that earlier. Otherwise, I defer to Peter to provide some more intuition!}}
+Combining these expressions, we have the following identity:
+%
+\[ 2(G_{i,l} - p_l)(G_{j,l} - p_l) = \P(X_i = X_j | l) - \P(X_i = X_U | l) - \P(X_j = X_V | l) + \P(X_U = X_V | l) .\]
+% = (1 - Gi - Gj + 2GiGj) - (1 - Gi - p + 2Gip) - (1 - Gj - p + 2Gjp) + (1 - 2p + 2p^2)
+% = 1 - Gi - Gj + 2GiGj - 1 + Gi + p - 2Gip - 1 + Gj + p - 2Gjp + 1 - 2p + 2p^2
+% = (1 - 1 - 1 + 1) --> 0
+%   (-Gi + Gi) --> 0
+%   (-Gj + Gj) --> 0
+%   (p + p - 2p) --> 0
+%   (2GiGj - 2Gip - 2Gjp + 2p^2)
+% = 2(GiGj - Gip - Gjp + p^2)
+% = 2(Gi - p)(Gj - p)
+%
+Since $l$ is chosen uniformly at random, it follows that:
+%
+\small{
+\begin{align} \label{eqn:cov_prob} % used/referenced
+    \mathbf{C}_{i,j} = \frac{1}{2}\left(\P(X_i = X_j) - \P(X_i = X_U) - \P(X_j = X_V) + \P(X_U = X_V) \right).
+\end{align}
+}
+\todo{TODO: Is this $\frac{1}{2}$ the reason for $\sigma / 2$? \brieuc{No: see new footnote above.}}
+
+\paragraph{We thus have the following three equivalences
+(\ref{eqn:trait_cov}, \ref{eqn:grm}, and \ref{eqn:cov_prob}):}
+%
+\begin{align} \label{eqn:equivalence} % not used/referenced
+    \mathbf{C}_{i,j} &= \frac{1}{n_l \sigma^2}\Cov\left[Z(i) - \bar{Z}, Z(j) - \bar{Z}\right] \tag{\ref{eqn:trait_cov}} \\
+                     &= \frac{1}{n_l}\sum_{l=1}^{n_l} (G_{i,l} - p_l)(G_{j,l} - p_l) \tag{\ref{eqn:grm}} \\
+                     &= \frac{1}{2}\left(\P(X_i = X_j) - \P(X_i = X_U) - \P(X_j = X_V) + \P(X_U = X_V) \right) \tag{\ref{eqn:cov_prob}}.
+\end{align}
+%
+From the third equivalence (\ref{eqn:cov_prob}),
+the quantity $n_l\mathbf{C}_{i,j}$ has the following interpretation.
+%
+Let $m(i,j)$ denote the number of pairwise allele matches between
+the individual $i$ and $j$,
+and let $U$ and $V$ be independently chosen individuals from the set of individuals.
+%
+Then the quantity $n_l\mathbf{C}_{i,j}$
+is the expected number of pairwise allele matches between $i$ and $j$
+relative to the rest of individuals:
+%
+\begin{align} \label{eqn:relative_allele_matches} % used/referenced
+    n_l\mathbf{C}_{ij} = \E[m(i,j) - m(i,U) - m(j,V) + m(U,V)],
+\end{align}
+%
+where the expectation is over the choice of U and V.
+%
+This interpretation is closely related to the definition of kinship $K_{i,j}$
+between individuals $i$ and $j$ as the
+``the probability of a match between alleles drawn at random from each of them'',
+averaged over loci, and with the alleles drawn with replacement if $i=j$
+(the definition of $K_{c0}$ in \cite{speed2015relatedness}
+and similar definitions in \cite{vanraden2008efficient} and \cite{yang2010common}).
+%
+See also \cite{weir2017unified, weir2018how} and \cite{ochoa2021estimating} on
+other ``relative'' kinship estimators.
+
+% --- ARG-based relatedness ----------------------------------------------
+
+\paragraph{We now describe a closely-related notion of branch-based relatedness.}
+%
+Suppose that mutations are unobserved and they appear over time
+(measured with branch length $b$) and genome sequence length ($\ell$),
+so that the net effect on a trait from a branch
+``area'' $A$ is $N(0, A \sigma^2 / 2)$ with $A = b \times \ell$.
+%
+Let $A(i,j)$ be the total area of branches ancestral to haploid individuals $i$ and $j$.
+%
+Then, just as above, with $U$ and $V$ randomly chosen haploid individuals:
+%
+\begin{align} \label{eqn:branch_cov} % used/referenced
+    \Cov\left[Z(i) - \bar{Z}, Z(j) - \bar{Z}\right] &= \E[A(i,j) - A(i,U) - A(j,V) + A(U,V)],
+\end{align}
+%
+where the expectation is over the choice of $U$ and $V$,
+while $Z(i)$ and $\bar{Z}$ are defined as before.
+%
+Such a statistic can in principle be computed from an ARG encoded as a
+tree sequence using the framework described in \citep{ralph2020efficiently}.
+
+% \todo[inline]{What is the $f_{i,j}$ and $w$ and how it connects to the above $\Cov[]$,
+%   Do we need to say more? Sure people can go and read ralph2020efficiently
+%   but providing more intuition here is important too.
+%   We have more on $f_{i,j}$ and $w$ in supplement! \brieuc{Again not sure how much detail we want to go into here given that we are not using this implementation in the analysis. Worth mentioning thogh, as well as the site-branch duality. Perhaps Peter can provide a succint explanation here?}}
+%
+\todo[inline]{TODO: we should say something about site statistic?? A useful connection, since GRM
+  is site statistic, while eGRM is branch statistic (realisation vs expectation ...)}
+
+\paragraph{As noted by \cite{mcvean2009genealogical, fan2022genealogical}, and \cite{zhang2023biobank},
+we can represent this covariance in terms of ARG coalescence times (TMRCA);
+as the weighted average of coalescence times along the genome for pairs of individuals.}
+%
+Let $\ell_k$ be the genome sequence length corresponding to the $k$-th local tree,
+$b(i,j,k)$ be the length of the branch ancestral to haploid individuals $i$ and $j$ in the $k$-th local tree, and
+$t(i,j,k)$ be the TMRCA of $i$ and $j$ in the $k$-th local tree.
+%
+We can then split \eqref{eqn:branch_cov} by local tree as follows:
+%
+\begin{align}
+    &\Cov\left[Z(i) - \bar{Z}, Z(j) - \bar{Z}\right] \notag \\
+        &\qquad = \sum_{k = 1}^{n_T}        \E[A(i,j,k) - A(i,U,k) - A(j,V,k) + A(U,V,k)] \\
+        &\qquad = \sum_{k = 1}^{n_T} \ell_l \E[b(i,j,k) - b(i,U,k) - b(j,V,k) + b(U,V,k)] \\
+        &\qquad = \sum_{k = 1}^{n_T} \ell_l \E[t(i,U,k) + t(j,V,k) - t(i,j,k) - t(U,V,k)],
+\end{align}
+%
+where $n_T$ is the number of local trees in the ARG.
+%
+This expression illustrates how ARG/branch-based relatedness can be written as
+a weighted average of coalescence times across the genome for pairs of samples.
+
+%
+\todo[inline]{Quan gen people will struggle with the above expressions since
+we/they don't have the intuition about the branch area, branch lengths, and TMRCA.
+I think that adding the tiny example here would be very useful!}
+
+

@@ -1,0 +1,74 @@
+$i$ individual
+
+$j$ individual
+
+$U$ random individual ($u$ is a realization of $U$) % TODO: s --> U/u
+
+$V$ random individual ($v$ is a realization of $V$) % TODO: t --> V/v
+
+$n_i$ number of individuals
+
+$l$locus % TODO: change to $\ell$?
+
+$k$ local tree
+
+$n_l$ number of loci
+% TODO: consolidate between n_l and n_L!
+
+$p$ ploidy
+
+$g$ genome copy
+
+$n_g$ number of genome copies
+% TODO: consolidate between $n_g$ and p!
+
+$a_\ell$ ``ancestral'' allele at locus $\ell$
+
+$G_{i,l,c} \in \mathcal{A}$ allele of individual $i$ at locus $l$ and genome copy $c$
+$G_{i,\ell,g}$ $g^\text{th}$ genome copy
+% TODO: consolidate between c and g (g is used for soo many things in genetics)!
+
+$G_{i,l} \in \lbrace 0, 1 \rbrace$ allele of haploid individual $i$ at biallelic locus $l$
+
+$\mathbf{G} \in \{0, 1\}^{n_g \times n_l}$ haplotype matrix of $n_g$ genome copies at $n_l$ biallelic loci (with haploid individuals $n_g = n_i$)
+
+$\mathbf{G}^c$ be the \textit{column-centered} haplotype matrix
+
+$Z_{\ell,x}$ effect of allele $x$ at locus $\ell$
+
+$Z_{\ell,a_\ell} = 0$ is the effect of the ancestral allele at locus $\ell$
+
+$Z_{l,a} \sim N(0, \sigma^2)$ additive effect of allele $a$ at locus $l$
+
+$Z(i)$ genetic value of individual $i$
+
+$\bar{Z}$ mean of genetic values
+
+$n(i,l,a)$ number of copies of the $a$ allele that individual $i$ carries at locus $l$
+
+$\bar{n}(l,a)$ mean number of copies of the $a$ allele at locus $l$
+
+$p_l$ is allele frequency at the biallelic locus $l$
+
+$\mathbf{C}$ covariance matrix
+
+$\mathbf{C}_{i,j}$ element of covariance matrix
+
+$(X_i, X_j, X_U, X_V)$ random variable taking the value $(G_{i,l}, G_{j,l}, G_{U,l}, G_{V,l})$
+
+$m(i,j)$ number of pairwise allele matches between the individual $i$ and $j$
+
+$A$ branch area (time $\times$ sequence)
+
+$f_{i,j}$ summary function for branch statistic
+
+$w$ weight for branch statistic
+
+$\ell_k$ sequence length corresponding to the $k$-th local tree
+
+$b(i,j,k)$ branch length ancestral to haploid individuals $i$ and $j$ in the $k$-th local tree
+
+$t(i,j,k)$ TMRCA of $i$ and $j$ in the $k$-th local tree
+
+$n_T$ number of local trees ($n_k$ would follow the above notation, but it is not intuitive, $n_t$ and $t$ would be neater, but we use $t$ for TMRCA)
+% TODO: change $n_T$ to $n_k$?% TODO: change $n_T$ to $n_k$ since t is time?

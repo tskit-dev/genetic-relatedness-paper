@@ -1,0 +1,30 @@
+Gregor Gorjanc
+Brieuc Lehmann
+Jerome Kelleher
+Peter Ralph
+???
+Hannes for A22 in Python?
+
+Variant - alphabetical:
+Gregor Gorjanc
+Jerome Kelleher
+Brieuc Lehmann
+Peter Ralph
+
+Variant - 2:
+Brieuc Lehmann
+Gregor Gorjanc
+Jerome Kelleher
+Peter Ralph
+
+Variant - 3:
+Brieuc Lehmann
+Jerome Kelleher
+Peter Ralph
+Gregor Gorjanc
+
+Variant - 4:
+Brieuc Lehmann
+Jerome Kelleher
+Peter Ralph
+Gregor Gorjanc
