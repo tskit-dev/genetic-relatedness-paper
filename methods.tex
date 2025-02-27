@@ -14,25 +14,16 @@
 % --- INTRO TO METHODS ---------------------------------------------------
 
 % Paragraph on The overview of methods
-We begin by outlining a trait-centric notion of genetic relatedness,
-following long-standing approaches in the field
+We begin by outlining a trait-centric notion of genetic relatedness, following long-standing approaches in the field
 \citep{fisher1919correlation, wright1922coefficients}.
 %
-The general strategy is to consider a hypothetical trait where the genetic value
-of an individual can be modelled as a random variable that is a function
-of the individual's alleles arising from past mutations on branches encoded with the ARG
-and the effect of these alleles.
+The general strategy is to consider a hypothetical trait where the genetic value of an individual can be modelled as a random variable that is a function of the individual's alleles arising from past mutations on branches encoded with the ARG and the effect of these alleles.
 %
-The covariance structure of this trait between individuals in a given
-population provides a measure of relatedness, and unifies several common notions of relatedness.
+The covariance structure of this trait between individuals in a given population provides a measure of relatedness, and unifies several common notions of relatedness.
 %
-We then describe algorithms to compute branch GRM
-directly from the succinct tree sequence encoding of an ARG,
-including efficient matrix-vector multiplication, and
-how to use this matrix-vector multiplication for PCA.
+We then explore the relationship between pedigree relatedness and `branch relatedness', that is relatedness defined according to the branches of the ARG. We investigate this relationship empirically using simulated data from a real pedigree of French-Canadian individuals.
 %
-Finally, we demonstrate these methods on
-simulated data from a real pedigree of French-Canadian individuals.
+Finally, we describe algorithms to compute branch GRM directly from the succinct tree sequence encoding of an ARG, including efficient matrix-vector multiplication, and how to use this matrix-vector multiplication for PCA.
 
 \subsection{ARGs and tree sequences}
 
@@ -537,10 +528,13 @@ centering matrix, the above equation says that $\mathbf{B} = - \mathbf{P} \mathb
 % \end{align*}
 
 \subsection{Branch PCA}
+\todo{I wonder if this should go after the next section comparing pedigree and branch relatedness}
 
 Principal component analysis (PCA) is a commonly used technique by which to quantify and visualise population structure from genotype data. Mathematically, PCA operates by projecting samples onto a set of orthogonal axes, each defined as a linear combination of genotype values across SNPs or other genetic variants. An iterative characterization of PCA is as follows: choose the first principal component to be the axis that captures the maximum possible variance in the data, then choose the second principal component that maximizes variance whilst being orthogonal to the first, and so on. The first three or four principal components are often presented as a low-dimensional summary of population structure.
 
-An equivalent way to undertake PCA is to compute the eigenvectors of the (centered) genotype GRM, in a technique known as singular value decomposition (SVD). This facilitates the use of powerful linear algebra techniques that focus on computing a subset of the principal components. This also indicates an alternative approach to characterizing population structure, namely through SVD of the branch GRM. This can be seen as a PCA of the $S$ matrix in the definition of the eGRM in Section~\ref{sec:trait-centric}. \cite{fan2022genealogical}  Analogously, pedigree PCA can be undertaken via SVD of the pedigree GRM. \todo[inline]{Gregor: please add citation(s)!}
+An equivalent way to undertake PCA is to compute the eigenvectors of the (centered) genotype GRM, in a technique known as singular value decomposition (SVD). This facilitates the use of powerful linear algebra techniques that focus on computing a subset of the principal components. This also indicates an alternative approach to characterizing population structure, namely through SVD of the branch GRM. This can be seen as a PCA of the $S$ matrix in the definition of the eGRM in Section~\ref{sec:trait-centric}. \cite{fan2022genealogical} showed that branch PCA can better capture recent population structure than genotype PCA, even when based on the same genotype information. We describe an efficient way to perform SVD of the branch GRM 
+
+Analogously, pedigree PCA can be undertaken via SVD of the pedigree GRM. \todo[inline]{Gregor: please elaborate and add citation(s)!}
 
 \subsection{Connection between pedigree and branch relatedness}
 % JK: trying to rearrange this into a narrative leading to the FC example below
@@ -762,25 +756,18 @@ branch relatedness across the whole genome.
 % --- GRM computation ----------------------------------------------------
 
 \subsection{Efficient branch GRM-vector products}
-[WIP update this to more accurately reflect the narrative]
-
-% Paragraph on tskit implementation
-We now describe algorithms to perform computation of, and with, branch GRM
-from a tree sequence encoding of an ARG.
-%
-These are implemented in the \tskit{} software \citep{ralph2020efficiently, kelleher2024tskit},
-a highly performant toolkit for storing, manipulating, and analysing genomes using the tree sequence data structure
-\citep{kelleher2016efficient, kelleher2018efficient, wong2023general}.
-%
-We note that the \eGRM{} package implements the tree-by-tree approach of
-\citet{fan2022genealogical} and the \ARGneedlelib{} library implements the
-mutation-dropping approach of \citet{zhang2023biobank}.
-
-(the approximate mutation-dropping approach of \citet{zhang2023biobank} is 
-not directly comparable)
+We now describe algorithms to compute the branch GRM, showing that it is 
+fundamentally a quadratic time operation. Many downstream applications, however,
+do not actually require the GRM itself, but instead use the product of the 
+GRM times somes vector. We provide a rigorous description of an efficient 
+algorithm for this task, and demonstrate that it has \emph{logarithmic} time complexity.
+We then provide an algorithm to compute branch PCA based on this GRM-vector
+product algorithm using a randomised SVD method, and illustrate its scalability
+via some simulation-based benchmarks.
+The algorithms described are implemented in 
+the \tskit{} library \citep{ralph2020efficiently, kelleher2024tskit}.
 
 \subsubsection{Computing branch GRM}
-
 As shown in Eq.~\eqref{eqn:divergence_relatedness_branch}, the branch GRM
 $\mathbf{B}$ is a 
 straightforward function of the more fundamental divergence matrix $D$.
@@ -838,7 +825,10 @@ implementation~\citep{fan2022genealogical}.
 The complexity of computing the branch GRM exactly is therefore $O(n_T n_S^2)$,
 which has significant implications for its utility in large-scale studies:
 quadratic algorithms are simply not feasible when we have millions 
-of samples. In the next section, however, we show that it is not necessary
+of samples. 
+(The approximate  mutation-dropping approach of \citet{zhang2023biobank}
+is not directly comparable.)
+In the next section, however, we show that it is not necessary
 to compute the branch GRM explictly in order to \emph{use} it. For many 
 applications that use the GRM we can implicitly compute it without 
 materialising the actual matrix.
@@ -871,7 +861,6 @@ materialising the actual matrix.
 % while computing the GRM for $2^{13}=8192$ sample nodes.
 
 \subsubsection{Computing branch GRM-vector products}
-
 % Paragraph on matvec for branch GRM via simulating gv
 Many calculations with GRMs involve matrix-vector products
 \citep{colleau2002indirect, colleau2017fast}.
@@ -1176,7 +1165,7 @@ the algorithm in \citet{ralph2020efficiently} to keep the weights up-to-date.
 % but had not yet has been sent to the nodes and samples below in the previous trees.
 
 
-The analysis of this algorithm is straightforward and follows  standard 
+The analysis of this algorithm is straightforward and follows  a standard 
 pattern~\citep{kelleher2016efficient,ralph2020efficiently}. Because
 recombination results in a small modification of the current tree,
 each tree transition

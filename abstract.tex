@@ -10,27 +10,19 @@ there has been recent interest in defining GRM based on an ancestral recombinati
 The ARG-based GRMs were found to better capture the structure of a population and
 improve association studies relative to the genotype GRM.
 %
-Here, we unify the different definition of relatedness via the trait-centric perspective,
-which naturally leverages branch information in an ARG and 
-provides a definition of branch relatedness and corresponding branch GRM.
+Here, we unify the different definition of relatedness via the trait-centric perspective, which naturally leverages branch information in an ARG and provides a definition of branch relatedness and corresponding branch GRM.
 %
-With this new definition and tree sequence encoding of an ARG,
-we derive an efficient algorithm for computing products between the branch GRM and a general vector,
-without explicitly forming the branch GRM.
+We explore the relationship between branch relatedness and pedigree relatedness through a case study of French-Canadian individuals that have a known pedigree.
 %
-This algorithm leverages the sparse encoding of genomes with the tree sequence and
-hence enables large-scale computations with the branch GRM.
+Through the tree sequence encoding of an ARG, we then derive an efficient algorithm for computing products between the branch GRM and a general vector, without explicitly forming the branch GRM.
+%
+This algorithm leverages the sparse encoding of genomes with the tree sequence and hence enables large-scale computations with the branch GRM.
 %
 We demonstrate the power of this algorithm by developing
 a randomized principal components algorithm on tree sequence
-that enables the analysis of million genomes.
+that enables the analysis of millions of genomes.
 %
 All algorithms are implemented in the open source \tskit{} Python package.
-%
-We demonstrate the use of this algorithms with a case study of French-Canadian individuals
-that have a known pedigree.
-%
-In this study we also explore the relationship between pedigree and branch relatedness.
 %
 Taken together, this work consolidates the different notions of relatedness as branch relatedness
 and by leveraging the tree sequence encoding of an ARG it provides efficient algorithms

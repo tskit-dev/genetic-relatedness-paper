@@ -108,31 +108,17 @@ which provides an ARG-based analogue to the pedigree GRM.
 % --- GAP ---------------------------------------------------------------------
 
 % Paragraph on The gap
-However,
-current ARG-based relatedness methods are limited in their scalability.
+However, the scalability of current ARG-based relatedness methods is limited by their need to store the full branch GRM in memory. This restricts their use for downstream tasks such as principal component analysis (PCA) to datasets of between 10,000 and 100,000 individuals, depending on the available computational resources. Such downstream analyses can sometimes be performed instead via matrix-vector operations. The Algorithms that instead rely on matrix-vector operations, that is 
 %
-Operationally, \citet{fan2022genealogical} shifted the estimation of relatedness
-from summing over loci of a genotype matrix and
-for each locus evaluating genotype similarity between samples (for genotype GRM)
-to summing over local trees of an ARG and
-for each local tree evaluating time between samples' MRCA and the root (for branch GRM).
+%Operationally, \citet{fan2022genealogical} shifted the estimation of relatedness from summing over loci of a genotype matrix and for each locus evaluating genotype similarity between samples (for genotype GRM) to summing over local trees of an ARG and for each local tree evaluating time between samples' MRCA and the root (for branch GRM).
 %
-Iterating over local trees can be computationally expensive for large genomic datasets
-with a huge number of past recombination events, and hence a huge number of local trees.
+%Iterating over local trees can be computationally expensive for large genomic datasets with a huge number of past recombination events, and hence a huge number of local trees.
 %
 % \peter{I think this is true: Both} \citet{fan2022genealogical} and
 % \gregor{Peter: they did it to derive, but not to do computations}
-\citet{zhang2023biobank} also approximate the branch GRM
-by sampling new mutations on the branches of the ARG and
-computing the genotype GRM from these mutations,
-and demonstrate that this approach converges to the true branch GRM with high mutation rates,
-in line with the branch-site duality \citep{ralph2019empirical, ralph2020efficiently}.
+%\citet{zhang2023biobank} also approximate the branch GRM by sampling new mutations on the branches of the ARG and computing the genotype GRM from these mutations, and demonstrate that this approach converges to the true branch GRM with high mutation rates, in line with the branch-site duality \citep{ralph2019empirical, ralph2020efficiently}.
 %
-Although these methods have used branch GRM in downstream analyses,
-such as principal component analysis (PCA), estimation of heritability, and genome-wide associations,
-each of these approaches requires storing the full branch GRM in memory,
-limiting analyses between 10,000 and 100,000 individuals
-(depending on the available computational resources).
+%Although these methods have used branch GRM in downstream analyses, such as principal component analysis (PCA), estimation of heritability, and genome-wide associations, each of these approaches requires storing the full branch GRM in memory, limiting analyses between 10,000 and 100,000 individuals (depending on the available computational resources).
 
 % --- AIM ---------------------------------------------------------------------
 
