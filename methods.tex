@@ -1139,53 +1139,53 @@ so by accumulating values of haplotypes, we reduce the amount of necessary work.
 % Paragraph on describing the matvec algorithm
 We can see from equation~\eqref{eq:similar_ralph2020} that $\mathbf{C}\mathbf{w}$ is
 a sum of the contributions $\ell_{T_k}(n)w_k(n)$ of nodes specific to local trees.
-%
 Adding these contributions directly to the entries of $\mathbf{C}\mathbf{w}$ is
 inefficient due to the sheer number of node and sample pairs.
-%
 We can mitigate this by pushing down the contribution of the nodes only to their adjacent child nodes at a time,
 in the hope that the contributions will be passed to the correct samples corresponding to the entries of $\mathbf{C}\mathbf{w}$.
-%
 This is because the local connection between the nodes is extremely sparse in the tree sequence.
 The role of value $v(\cdot)$ is precisely to deliver the contributions correctly downwards the trees.
-%
 For each tree $T_k$, we want to ensure that $n$'s contribution is passed down only to
 the samples $s$ such that $s \le_{T_k} n$.
-%
 A straightforward way is to pass down the contributions at every position $k$.
-%
 Notice that the samples below a node do not change until the subtree beneath it changes.
-%
 This change is triggered by edge insertions and deletions happening below the edge,
 so we wait until the change happens.
-%
 Each node accumulates the contributions that are passed down from above
 until an edge below it is added or removed.
-%
 This contribution is stored in $v(n)$ and passed down to the child nodes of $n$ when the subtree changes.
-%
 This corresponds to the operations in $\mathbf{V1}$ and $\mathbf{V2}$
 that happen along the path from the root to $p$.
-%
 After passing down $v(n)$, it is set to $0$ and $x(n)$ is set to $b_k$ (the current position).
-%
 Then, $v(n)$ repeats to accumulate the contributions from above, including itself,
 for the newly updated set of samples.
-%
 Lastly, we add or subtract the weights of $c$ from the nodes above similarly to
 the algorithm in \citet{ralph2020efficiently} to keep the weights up-to-date.
 
-% Paragraph on the efficiency of the algorithm
-The algorithm is efficient because the operations occur locally between adjacent nodes in the tree sequence.
-%
-We can also see that the nodes in the path from the inserted/deleted edge to the root are
-modified to keep the computation minimal.
-%
-It passes the contributions $\ell_{T_k}(n)w_k(n)$ correctly because
-$v(\cdot)$ is passed down whenever the subtree changes.
-%
-From this point of view, we can interpret $v(\cdot)$ as the sum of contributions that $n$ inherited from above,
-but had not yet has been sent to the nodes and samples below in the previous trees.
+% JK: These notes belong in the explanation bit, maybe?
+% % Paragraph on the efficiency of the algorithm
+% The algorithm is efficient because the operations occur locally between adjacent nodes in the tree sequence.
+% %
+% We can also see that the nodes in the path from the inserted/deleted edge to the root are
+% modified to keep the computation minimal.
+% %
+% It passes the contributions $\ell_{T_k}(n)w_k(n)$ correctly because
+% $v(\cdot)$ is passed down whenever the subtree changes.
+% %
+% From this point of view, we can interpret $v(\cdot)$ as the sum of contributions that $n$ inherited from above,
+% but had not yet has been sent to the nodes and samples below in the previous trees.
+
+
+The analysis of this algorithm is straightforward and follows  standard 
+pattern~\citep{kelleher2016efficient,ralph2020efficiently}. Because
+recombination results in a small modification of the current tree,
+each tree transition
+incurs $O(1)$ edge removals and insertions . Each edge removal in step \textbf{V1}
+involves examining only nodes ancestral to the edge, and therefore incurs
+a cost of $O(\log{n_S})$, assuming trees are balanced. Edge insertions
+in \textbf{V2} have the same cost. Thus, 
+as the first tree requires inserting $O(n_S)$ edges requiring $O(1)$
+work, the overall complexity is $O(n_S + n_T \log{n_S})$.
 
 % --- PCA ----------------------------------------------------------------
 
