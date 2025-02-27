@@ -521,9 +521,9 @@ and summing the previous relation across the genome, we get that:
 Rearranging and substituting into the expression for branch relatedness~\eqref{eqn:branch_cov},
 centering cancels the terms with $R$, giving:
 %
-\begin{align*}
+\begin{align}\label{eqn:divergence_relatedness_branch}
     \mathbf{B}_{i,j} = - \frac{1}{2} \E[D(i,j) - D(i,U) - D(j,V) + D(U,V)] .
-\end{align*}
+\end{align}
 %
 Thought of as matrices, if $\mathbf{P}=\mathbf{I} - \mathbf{1}\mathbf{1}^\intercal / n_I$ is the $n_I \times n_I$
 centering matrix, the above equation says that $\mathbf{B} = - \mathbf{P} \mathbf{D} \mathbf{P} / 2$.
@@ -759,6 +759,7 @@ branch relatedness across the whole genome.
 % --- GRM computation ----------------------------------------------------
 
 \subsection{Efficient branch GRM-vector products}
+[WIP update this to more accurately reflect the narrative]
 
 % Paragraph on tskit implementation
 We now describe algorithms to perform computation of, and with, branch GRM
@@ -772,50 +773,73 @@ We note that the \eGRM{} package implements the tree-by-tree approach of
 \citet{fan2022genealogical} and the \ARGneedlelib{} library implements the
 mutation-dropping approach of \citet{zhang2023biobank}.
 
+(the approximate mutation-dropping approach of \citet{zhang2023biobank} is 
+not directly comparable)
+
 \subsubsection{Computing branch GRM}
 
-% Paragraph on computing the distance matrix
-% Notation debatable! Just sticking in the first thing I thought of.
-The fundamental object of interest in this work is the divergence matrix $\mathbf{D}$,
-which computes the [precise defition] diversity \todo{Write precise definition}
-such that $\mathbf{D}_{i, j}$ is the diversity between samples $i$ and $j$.
-%
-The algorithm used is straightforward, essentially iterating
-over all pairs of samples in each tree along the genome, computing the
-time to their MRCA, and updating the corresponding element of $\mathbf{D}$.
-%
-MRCAs are computed efficiently using the Schieber-Vishkin
-algorithm \citep{Schieber1988On} \todo{add Knuth citation!?},
-which allows us to compute the MRCA of two nodes in constant time
-after an $O(n)$ preprocessing step.
-% When searching for Schieber1988On, I found the following paper. Is it useful?
-% Simpler O(1) Query Algorithm for Level Ancestors
-% https://arxiv.org/html/2207.11954v3
-%
-Given this, the overall time complexity is $O(n_T n^2)$,
-as we need to perform $O(n^2)$ for all $n_T$ trees.
-%
-It is interesting to note that much more sophisticated
-``incremental'' algorithms taking advantage of the differences between
-adjacent trees and updating the divergence matrix only when necessary
-were much slower in practice than the simple approach outlined above.
-%
-One possible explanation is that the dominant $O(n^2)$ term here means
-that trees never become large enough to justify the more complex
-code, and a well-engineered simple approach is faster in practise.
+As shown in Eq.~\eqref{eqn:divergence_relatedness_branch}, the branch GRM
+$\mathbf{B}$ is a 
+straightforward function of the more fundamental divergence matrix $D$.
+The time complexity of computing the branch GRM is therefore the same as 
+the divergence matrix.
+The divergence matrix describes
+the total branch length separating all $n_S^2$ pairs of samples, such 
+that $D_{i,j} = 2t_u - t_i - t_j$ where $u$ is the MRCA of samples $i$ and $j$.
+Because the output is a dense $n_S \times n_S$ matrix 
+and at a minimum we must create and fill in the entries of this matrix,
+the complexity of this operation is at least $O(n_S^2)$.
 
-% Paragraph on computing GRM from D
-Given $\mathbf{D}$ we can compute the branch GRM in a straightforward manner via:
-%
-\[
-\mathbf{G} = \mbox{do something with}\mathbf{D}
-\]
-\todo{Complete this paragraph.}
+So-called ``incremental algorithms'', which use the fact that the 
+small changes in tree structure we observe due to recombination events
+often correspond to small changes in some accumulated statisic as 
+we move along the genome,
+have led to very efficient algorithms in several 
+contexts~\citep{kelleher2016efficient,ralph2020efficiently,kelleher2020coalescent}. 
+The divergence matrix, however, does not easily lend itself to this approach.
+Incremental algorithms work well when we only need to consider the effects 
+of inserting and removing edges on nodes that are \emph{ancestral to}
+a given node. To compute the divergence matrix, however, we need to keep track
+of when the MRCAs of each pair of samples change, and this requires 
+descending into the subtrees \emph{descending from} nodes affected by 
+edges being inserted and removed. Removing (or inserting) an edge changes the MRCA of 
+all pairs between the set of samples descending from it 
+and those not descending from it. In worst case (removing an edge to the 
+root of a balanced binary tree with $n_S$ samples) this involves 
+$O(n_S^2)$ work per tree transition, and therefore the complexity of the 
+operation is $O(n_T n_S^2)$. 
 
-Supplementary Fig~XX compares the \tskit{} implementation of this
-algorithm to the \eGRM{} package~\citet{fan2022genealogical}, showing
-% JK note: it should, we'll fix this.
-that it is significantly faster. 
+The naive approach to this problem 
+is to proceed tree-by-tree along the sequence,
+iterate over all $\binom{n_S}{2}$ pairs of samples, compute the 
+time to their MRCA, and update the corresponding element of $D$.
+MRCAs can be computed efficiently using (e.g.) the Schieber-Vishkin
+algorithm \citep{Schieber1988On,knuth2011combinatorial}
+which provides the MRCA of two nodes in constant time
+after an $O(n_S)$ preprocessing step.
+The overall complexity is therefore $O(n_T n_S^2)$,
+as we need to perform $O(n_S^2)$ work for all $n_T$ trees.
+While this is the same complexity as the incremental approach outlined
+above, this ``naive'' approach is in practise much faster, and 
+is therefore the implementation used in \tskit{}.
+This is essentially the same algorithm as used in the 
+\eGRM{} package~\citet{fan2022genealogical}, although it is implemented in
+Python and does not use an efficient approach of bulk MRCA queries. 
+This approach therefore requires $O(n_T n_S^2 \log^2{n_S})$ time, 
+as each MRCA query requires $O$(tree height) time, which is $\log n_S$
+if the trees are balanced~\citep{kelleher2016efficient}.
+Supplementary Fig~XX shows that the \tskit{} implementation 
+significantly outperforms the \eGRM{}
+implementation~\citep{fan2022genealogical}.
+
+The complexity of computing the branch GRM exactly is therefore $O(n_T n_S^2)$,
+which has significant implications for its utility in large-scale studies:
+quadratic algorithms are simply not feasible when we have millions 
+of samples. In the next section, however, we show that it is not necessary
+to compute the branch GRM explictly in order to \emph{use} it. For many 
+applications that use the GRM we can implicitly compute it without 
+materialising the actual matrix.
+
 
 % and the \ARGneedlelib{} library implements the
 % mutation-dropping approach of \citet{zhang2023biobank}.
