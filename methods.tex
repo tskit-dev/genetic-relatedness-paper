@@ -861,158 +861,169 @@ materialising the actual matrix.
 % while computing the GRM for $2^{13}=8192$ sample nodes.
 
 \subsubsection{Computing branch GRM-vector products}
-% Paragraph on matvec for branch GRM via simulating gv
+% JK Old version of lead-in. Uncomment to revert
+
+% % Paragraph on matvec for branch GRM via simulating gv
+% Many calculations with GRMs involve matrix-vector products
+% \citep{colleau2002indirect, colleau2017fast}.
+
+% As a stepping stone towards a scalable branch GRM-vector product algorithm,
+% we first present an efficient genetic value simulation algorithm.
+% %
+% The notation $m \in_{T_k} n$ means that mutation $m$ is on node $n$ at the $k^{\text{th}}$ tree.
+% %
+% We can write the genetic value of sample $s$ as:
+% %
+% \begin{align} \label{eqn:genetic_value_trees}
+%     Z(s) = \sum_k \sum_{n: s\le_{T_k} n} \sum_{m:m \in_{T_k} n} \beta_m
+% \end{align}
+% %
+% given that $\beta_m$ is the effect size of the derived allele due to $m$.
+% %
+% Here, we implicitly assume that a child mutation cannot occur at the same site as the parent mutation.
+
+% % Paragraph on pushing mutations down the tree
+% Computing $Z(s)$ can be conceptualized as pushing the mutations down the tree.
+% %
+% We can think of the effect size sums as a weight of a node specific to a local tree,
+% motivating the following notation.
+% %
+% \begin{align}
+%     w_k(n) = \sum_{m: m \in_{T_k} n} \beta_m .
+% \end{align}
+% %
+% This term is similar to the weights in \citet{ralph2020efficiently},
+% although the resemblance does not play a meaningful role here.
+% %
+% Unlike the algorithm in \citet{ralph2020efficiently},
+% which climbs up the trees from the tips to the root to aggregate the weights of samples,
+% computing the value~\eqref{eqn:genetic_value_trees} can be conceptualized as
+% pushing the weights from the root down to the samples at the tips.
+
+% % Paragraph on when to push down
+% The question for an efficient implementation of this idea
+% is when we should push down $w_k(n)$ for each node $n$.
+% %
+% A brute-force strategy is to do this for every tree.
+% %
+% However, the sheer number of local trees makes it intractable in large genomes.
+% %
+% Efficient tree sequence algorithms leverage the shared tree topology
+% in adjacent trees to minimize the number of operations.
+% %
+% In the following Algorithm~\algorithmref{GVSim},
+% we only push the weights down when the subtree of the node changes
+% as we move from left to right.
+% %
+% For each node $n$, we have \textit{value} $v(n)$ that collects the genetic effects from above until the subtree changes and
+% the \textit{index} $l(n)$ storing the last tree index in which $n$ was updated.
+
+% % The algorithm
+% \begin{taocpalg}{GVSim}{Genetic value simulation}
+% {
+%     Given a sequence of positions that are recombination breakpoints $b_k$ for $1 \le k \le K$ % TODO: we used b for somehing else before
+%     along the genome and corresponding sequences of edges to remove ($R_k$) and add ($A_k$) at each position,
+%     compute the values
+%     \eqref{eqn:genetic_value_trees} for $1 \le s \le n_S$, as long as all samples are leaves in all trees.
+%     %
+%     Let $T$ be the current tree,
+%     initialize $k = 1$, $l(n)=0$, and $v(n) = 0$ for all $n \in \mathbf{V}$.
+% }
+
+% \algstep{G1.}{Remove edges}{
+%     For each edge $(c, p) \in R_k$,
+%     identify the path from $p$ to the root.
+%     Move from the root to $p$ along the path.
+%     For each $n$ on the path,
+%     $v(n) \pluseq \sum_{l=l(n)}^k w_l(n)$ and $l(n)=0$.
+%     Then,
+%     $v(d) \pluseq v(n)$ for all children $d$ of $n$ and
+%     $v(n)=0$.
+%     Then,
+%     $v(c) \pluseq \sum_{l=l(c)}^k w_l(c)$ and $l(c)=0$.
+%     Finally, remove the edge.
+% }
+
+% \algstep{G2.}{Add edges}{
+%     For each edge $(c, p) \in A_k$,
+%     identify the path from $p$ to the root.
+%     Move from the root to $p$ along the path.
+%     For each $n$ on the path,
+%     $v(n) \pluseq \sum_{l=l(n)}^k w_l(n)$ and $l(n)=0$.
+%     Then,
+%     $v(d) \pluseq v(n)$ for all children $d$ of $n$ and
+%     $v(n)=0$.
+%     Then, $l(c)=0$.
+%     Finally, add the edge.
+% }
+
+% \algstep{G3.}{Iteration}{
+%     If $k < N$,
+%     set $k = k + 1$ and return to \algorithmref{\textbf{V1}}.
+%     Otherwise, set $z_s = v(s)$ for $1 \le s \le n_S$ and finish.
+% }
+
+% \end{taocpalg}
+
+% % Paragraph on describing the algorithm
+% The algorithm only adds the genetic values from above to its child when the subtree changes.
+% %
+% This saves the number of operations compared to pushing things down for every tree
+% because most edges remain the same between close trees.
+% %
+% Next, it ensures that a mutation's effect is passed down to the correct samples
+% because the genetic effects that nodes have accumulated
+% are passed down just before the samples beneath them change due to an edge insertion or deletion.
+% %
+% After passing the previously accumulated genetic effects,
+% $v(n)$ is set to zero and starts collecting genetic values for the new set of samples.
+% %
+% This is why we have to track $l(\cdot)$ to remember the last time the node was updated,
+% as we should only send genetic values that has not yet been passed to the child.
+% %
+% Hence, we can say that the algorithm \textit{lazily} passes
+% the genetic values from the root to the tips only when it is necessary;
+% when the samples below a node changes.
+% %
+% In other words, sending genetic values from above to below before the subtree change is redundant,
+% and not doing so when the subtree changes will pass the values to the wrong samples.
+
+
 Many calculations with GRMs involve matrix-vector products
-\citep{colleau2002indirect, colleau2017fast}.
-%
-As a stepping stone towards a scalable branch GRM-vector product algorithm,
-we first present an efficient genetic value simulation algorithm.
-%
-The notation $m \in_{T_k} n$ means that mutation $m$ is on node $n$ at the $k^{\text{th}}$ tree.
-%
-We can write the genetic value of sample $s$ as:
-%
-\begin{align} \label{eqn:genetic_value_trees}
-    Z(s) = \sum_k \sum_{n: s\le_{T_k} n} \sum_{m:m \in_{T_k} n} \beta_m
-\end{align}
-%
-given that $\beta_m$ is the effect size of the derived allele due to $m$.
-%
-Here, we implicitly assume that a child mutation cannot occur at the same site as the parent mutation.
+\citep{colleau2002indirect, colleau2017fast}. The obvious way to perform such a
+computation is to first compute the GRM, and to then compute its product with 
+the vector in question. This places some strong limits on the size of the 
+datasets that we can work with, however, as the time and space complexity 
+is quadratic in the number of samples, $n_S$. In certain situations, however, 
+given that the output of an $(n\times n)$-matrix times an $n$-vector is,
+itself an $n$-vector, we can perform this calculation without explicitly
+materialising the matrix, thus avoiding the quadratic space complexity.
+In rarer situations, we can even exploit the structure of the matrix to 
+avoid the quadratic \emph{time} complexity. Not only do we not fully
+materialise the matrix in memory, we never actually compute all $n_S^2$
+elements of the matrix. In this section we develop an algorithm of the 
+latter form, which allows us to exactly compute the product of the 
+branch GRM with an arbitrary vector in substantially less time than
+it would take to compute the matrix itself.
 
-% Paragraph on pushing mutations down the tree
-Computing $Z(s)$ can be conceptualized as pushing the mutations down the tree.
-%
-We can think of the effect size sums as a weight of a node specific to a local tree,
-motivating the following notation.
-%
-\begin{align}
-    w_k(n) = \sum_{m: m \in_{T_k} n} \beta_m .
-\end{align}
-%
-This term is similar to the weights in \citet{ralph2020efficiently},
-although the resemblance does not play a meaningful role here.
-%
-Unlike the algorithm in \citet{ralph2020efficiently},
-which climbs up the trees from the tips to the root to aggregate the weights of samples,
-computing the value~\eqref{eqn:genetic_value_trees} can be conceptualized as
-pushing the weights from the root down to the samples at the tips.
-
-% Paragraph on when to push down
-The question for an efficient implementation of this idea
-is when we should push down $w_k(n)$ for each node $n$.
-%
-A brute-force strategy is to do this for every tree.
-%
-However, the sheer number of local trees makes it intractable in large genomes.
-%
-Efficient tree sequence algorithms leverage the shared tree topology
-in adjacent trees to minimize the number of operations.
-%
-In the following Algorithm~\algorithmref{GVSim},
-we only push the weights down when the subtree of the node changes
-as we move from left to right.
-%
-For each node $n$, we have \textit{value} $v(n)$ that collects the genetic effects from above until the subtree changes and
-the \textit{index} $l(n)$ storing the last tree index in which $n$ was updated.
-
-% The algorithm
-\begin{taocpalg}{GVSim}{Genetic value simulation}
-{
-    Given a sequence of positions that are recombination breakpoints $b_k$ for $1 \le k \le K$ % TODO: we used b for somehing else before
-    along the genome and corresponding sequences of edges to remove ($R_k$) and add ($A_k$) at each position,
-    compute the values
-    \eqref{eqn:genetic_value_trees} for $1 \le s \le n_S$, as long as all samples are leaves in all trees.
-    %
-    Let $T$ be the current tree,
-    initialize $k = 1$, $l(n)=0$, and $v(n) = 0$ for all $n \in \mathbf{V}$.
-}
-
-\algstep{G1.}{Remove edges}{
-    For each edge $(c, p) \in R_k$,
-    identify the path from $p$ to the root.
-    Move from the root to $p$ along the path.
-    For each $n$ on the path,
-    $v(n) \pluseq \sum_{l=l(n)}^k w_l(n)$ and $l(n)=0$.
-    Then,
-    $v(d) \pluseq v(n)$ for all children $d$ of $n$ and
-    $v(n)=0$.
-    Then,
-    $v(c) \pluseq \sum_{l=l(c)}^k w_l(c)$ and $l(c)=0$.
-    Finally, remove the edge.
-}
-
-\algstep{G2.}{Add edges}{
-    For each edge $(c, p) \in A_k$,
-    identify the path from $p$ to the root.
-    Move from the root to $p$ along the path.
-    For each $n$ on the path,
-    $v(n) \pluseq \sum_{l=l(n)}^k w_l(n)$ and $l(n)=0$.
-    Then,
-    $v(d) \pluseq v(n)$ for all children $d$ of $n$ and
-    $v(n)=0$.
-    Then, $l(c)=0$.
-    Finally, add the edge.
-}
-
-\algstep{G3.}{Iteration}{
-    If $k < N$,
-    set $k = k + 1$ and return to \algorithmref{\textbf{V1}}.
-    Otherwise, set $z_s = v(s)$ for $1 \le s \le n_S$ and finish.
-}
-
-\end{taocpalg}
-
-% Paragraph on describing the algorithm
-The algorithm only adds the genetic values from above to its child when the subtree changes.
-%
-This saves the number of operations compared to pushing things down for every tree
-because most edges remain the same between close trees.
-%
-Next, it ensures that a mutation's effect is passed down to the correct samples
-because the genetic effects that nodes have accumulated
-are passed down just before the samples beneath them change due to an edge insertion or deletion.
-%
-After passing the previously accumulated genetic effects,
-$v(n)$ is set to zero and starts collecting genetic values for the new set of samples.
-%
-This is why we have to track $l(\cdot)$ to remember the last time the node was updated,
-as we should only send genetic values that has not yet been passed to the child.
-%
-Hence, we can say that the algorithm \textit{lazily} passes
-the genetic values from the root to the tips only when it is necessary;
-when the samples below a node changes.
-%
-In other words, sending genetic values from above to below before the subtree change is redundant,
-and not doing so when the subtree changes will pass the values to the wrong samples.
-
-% Paragraph on changing the algo to matvec
-A slight modification of the algorithm can multiply the GRM to a vector.
-%
+To do this we require some notation.
 Suppose that $\mathbf{C}_{s,t}$ is an uncentered branch relatedness between
 sampled genomes $s$ and $t$ as computed from the trees, that is,
 the sum of the areas of all branches in all trees that are ancestral to both $s$ and $t$.
-%
 % TODO: we used b for somehing else before
 \begin{align} \label{defn:pairwise_relatedness}
     \mathbf{C}_{s,t} = \sum_k (b_k - b_{k-1}) \sum_{n: s,t \le_{T_k} n} \ell_{T_k}(n) % TODO: what is \ell_{T_k} here?
 \end{align}
-%
 For a given vector $\mathbf{w}$, we'd like to compute the matrix-vector product $\mathbf{C}\mathbf{w}$.
-%
-% TODO: we used b for somehing else before
 Suppose that $b_k$ ($k=0,\ldots,K$) are the recombination breakpoints on the genome
 including the start and end of the genome (the genome is a closed interval $[b_0, b_K]$).
-%
 Suppose that the $k^{\text{th}}$ tree $T_k$ extends over a span $b_k - b_{k-1}$ along the genome,
 that the length of the edge (in units of time) above node $n$ in $T_k$ is $\ell_{T_k}(n) = t_{p(n)}-t_n$,
 where $p(n)$ is the parent node of $n$.
-%
 The partial ordering $\le_T$ of nodes are induced by the tree that older nodes are larger than the younger nodes.
 
 % Paragraph on computing the matrix-vector product
 The $s^{\text{th}}$ element of the matrix-vector product $\mathbf{C}\mathbf{w}$ is:
-%
 \begin{align} \label{eq:similar_ralph2020}
     \begin{aligned}
         (\mathbf{C}\mathbf{w})_s &=
@@ -1035,33 +1046,25 @@ The $s^{\text{th}}$ element of the matrix-vector product $\mathbf{C}\mathbf{w}$ 
         \sum_{n: s\le_{T_k} n} \ell_{T_k}(n) w_k(n)
     \end{aligned}
 \end{align}
-%
 The new variable $w_k(n)$ is the sum of sample weights below $n$ in tree $T_k$:
-%
 \begin{align}
     w_k(n) = \sum_{t:t \le_{T_k} n} {w}_t ,
 \end{align}
-%
 which is a familiar term from \citet{ralph2020efficiently}.
-%
 Although a single entry of $\mathbf{C}\mathbf{w}$ could be computed efficiently
 from the algorithm in \citet{ralph2020efficiently},
 it doesn't scale well because it would require separate set of weights for each entry of the vector.
 
 % Paragraph on efficient way of computing the matrix-vector product
 We present an efficient algorithm for computing the entire matrix-vector product.
-%
 The general idea is simple: as we move left-to-right along the tree sequence,
 we keep track of two things for each node $n$:
 the \textit{weight} $w(n)$ of the node in the current tree ($w_k(n)$ above) and
 the \textit{value} $v(n)$ of the haplotype carried by $n$,
 which will contribute to all descendants of $n$ (we will explain the role of $v(\cdot)$ in detail shortly).
-%
 Additionally, we keep track of the last \textit{position} $x(n)$ in which the node was updated.
-%
 As we move along the genome, we update any nodes ancestral to any changes in the tree:
 all other nodes are the roots of unchanged subtrees and hence remains unchanged.
-%
 As seen above, each branch contributes to potentially many entries in the output vector,
 so by accumulating values of haplotypes, we reduce the amount of necessary work.
 
