@@ -162,27 +162,67 @@ of interest directly.
 
 % --- AIM ---------------------------------------------------------------------
 
-% Paragraph on The aim
-In this paper, we explore the relationships between different notions of relatedness and
-describe several algorithms to perform computations of, and with, the branch GRM.
-%
-Specifically, we show how branch relatedness arises as
-the covariance of a trait process evolving along the branches of an ARG,
-and how this relates to other measures of relatedness.
-%
-We undertake a comparison of pedigree and branch relatedness
-for simulated data from a real pedigree of the French-Canadian population of
-\citet{andersontrocme2023genes},
-illustrating the variability of the branch GRM within a fixed pedigree.
-%
-% We describe a procedure to compute the entire branch GRM by efficiently computing TMRCAs
-% using the Schieber-Vishkin algorithm \citep{Schieber1988On}.
-%
-We also develop a new algorithm to perform efficient branch GRM-vector product,
-which avoids storing the full branch GRM in memory.
-%
-This facilitates the use of the randomised singular value decomposition \citep{halko2011findingstructure}
-for PCA of over a million samples.
-%
-All computations are demonstrated using Python \tskit{} library
-\citep{ralph2020efficiently, kelleher2024tskit}.
+% % Paragraph on The aim
+% In this paper, we first explore the relationships between different 
+% concepts of relatedness, and show how these are unified 
+
+% and define an efficient algorithm
+% describe several algorithms to perform computations of, and with, the branch GRM.
+% %
+% Specifically, we show how branch relatedness arises as
+% the covariance of a trait process evolving along the branches of an ARG, and how this relates to other measures of relatedness.
+% %
+% We undertake a comparison of pedigree and branch relatedness
+% for simulated data from a real pedigree of the French-Canadian population of
+% \citet{andersontrocme2023genes},
+% illustrating the variability of the branch GRM within a fixed pedigree.
+% %
+% % We describe a procedure to compute the entire branch GRM by efficiently computing TMRCAs
+% % using the Schieber-Vishkin algorithm \citep{Schieber1988On}.
+% %
+% We also develop a new algorithm to perform efficient branch GRM-vector product,
+% which avoids storing the full branch GRM in memory.
+% %
+% This facilitates the use of the randomised singular value decomposition \citep{halko2011findingstructure}
+% for PCA of over a million samples.
+% %
+% All computations are demonstrated using Python \tskit{} library
+% \citep{ralph2020efficiently, kelleher2024tskit}.
+
+We begin by defining a trait-centric concept of genetic relatedness, following
+long-standing approaches in the 
+field~\citep{fisher1919correlation, wright1922coefficients}. 
+We show how branch relatedness arises as the
+covariance of a trait process evolving along the branches of an ARG, and how
+this relates to other measures of relatedness.
+% The general strategy is to consider a hypothetical trait where the genetic
+% value of an individual can be modelled as a random variable that is a
+% function of the individual's alleles arising from past mutations on branches
+% encoded with the ARG and the effect of these alleles. The covariance
+% structure of this trait between individuals in a given population provides a
+% measure of relatedness, and we show how this unifies several common concepts
+% of relatedness. 
+We then illustrate these definitions and the relationships between pedigree
+relatedness and branch relatedness using simulated data from a real pedigree of
+French-Canadian individuals. 
+As discussed in the previous paragraph, calculations requiring an explicit 
+GRM are limited in scale, and we show that the time complexity of 
+computing a branch GRM is 
+% JK: I know this is different notation to the rest of the paper, but 
+% I find the n_t n_s stuff a bit tedious and lacking clarity (totally 
+% get the necessity later on, though). Feel free to change if people think
+% this will be confusing.
+$O(t n^2)$, where $t$ is the number of trees (or equivalently, number 
+of recombination breakpoints) in the ARG.
+We present an algorithm to compute the product of the branch GRM with
+an arbitrary vector, and show that it has 
+$O(n + t \log{n})$ time complexity and $O(n)$ space complexity.
+We can therefore compute branch GRM-vector products 
+\emph{substantially faster} and with less memory 
+than the branch GRM itself.
+We illustrate the utility of this approach by presenting a 
+randomised singular value decomposition method 
+for PCA on the branch GRM that
+uses the new branch GRM-vector product algorithm (implemented 
+in \tskit{}), and show that it scales to millions of samples
+via benchmarks.
