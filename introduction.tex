@@ -22,7 +22,9 @@ quantitative genetics \citep{falconer1996introduction, lynch1998genetics},
 and to estimate genetic changes in phenotypic variation over time in
 evolutionary genetics \citep{walsh2018evolution, arnold2023evolutionary}.
 %
-Over time, genetic relatedness has been defined according to
+For a set of individuals, we store their pairwise relatedness in a genetic relatedness matrix (GRM).
+%
+Over time, genetic relatedness and GRMs have been defined according to
 pedigree \citep{fisher1919correlation, wright1922coefficients},
 genotype \citep{cotterman1940calculus, malecot1948mathematiques, malecot1969mathemathics},
 phylogeny \citep{felsenstein1985phylogenies,lynch1991methods},
@@ -32,8 +34,6 @@ coalescent times \citep{slatkin1991inbreeding}, and
 recently, ancestral recombination graph \citep{tsambos2022efficient, fan2022genealogical, zhang2023biobank}.
 %
 % \textcolor{red}{We review the standard definitions in Appendix: A Brief History of Genetic Relatedness}.
-%
-For a set of individuals, we store their pairwise relatedness in a genetic relatedness matrix (GRM).
     
 % Paragraph on ARG and relatedness
 Ancestral recombination graphs (ARGs) 
@@ -51,8 +51,9 @@ there has been significant recent progress in inferring ARGs from a sample of DN
 %
 This has been accompanied by computational advances that enable
 the highly efficient storage and processing of ARGs
-\citep{kelleher2016efficient, zhu2024variance, dehaas2024enabling};
-in this paper we make use of the \textit{succinct tree sequence} 
+\citep{kelleher2016efficient, zhu2024variance, dehaas2024enabling}.
+%
+In this paper we make use of the \textit{succinct tree sequence} 
 ARG encoding
 \citep{ralph2020efficiently, wong2023general}
 made available through the \tskit{} library.
@@ -84,9 +85,6 @@ We therefore use the more precise terms
 ``branch relatedness'' and ``branch GRM'' 
 rather than previously proposed ``eGRM'' or ``ARG-GRM'' 
 to avoid confusion.
-% JK I don't think we are discussing this any more, and even if we did I'm not sure
-% there's much to discuss?
-% (see Methods for more discussion).
 
 % Paragraph on Uses of branch GRM
 Recent applications of these methods have highlighted the advantages of
@@ -99,17 +97,18 @@ and can provide time-resolved characterisations of population structure
 by considering shared branch areas on particular subsets of the ARG
 defined by specific time intervals.
 %
-\citet{zhang2023biobank} use a branch GRM (their ``ARG-GRM'')
-to estimate heritability and to perform a ``genealogy-wide association scan'',
-showing that this approach is more powerful at detecting the effect of rare variants
-than association analysis on SNP array genotypes imputed to whole-genome sequence genotypes.
+An application of ``eGRM'' has also improved mapping quantitative trait loci
+in the presence of allelic heterogeneity and in understudied populations \citep{link2023tree}.
 %
 \citet{tsambos2022efficient} developed a method
 to find DNA segments that are identical-by-descent (IBD) for pairs of individuals in a given ARG and
 then summarise these outputs, possibly as an ``IBD GRM'',
 which provides an ARG-based analogue to the pedigree GRM.
-% JK: We should be citing the Tree-based QTL paper here also
-% https://www.cell.com/ajhg/fulltext/S0002-9297(23)00395-6
+%
+\citet{zhang2023biobank} use a branch GRM (their ``ARG-GRM'')
+to estimate heritability and to perform a ``genealogy-wide association scan'',
+showing that this approach is more powerful at detecting the effect of rare variants
+than association analysis on SNP array genotypes imputed to whole-genome sequence genotypes.
 
 % --- GAP ---------------------------------------------------------------------
 
@@ -118,11 +117,11 @@ The scalability of current ARG-based relatedness methods, however, is constraine
 their need generate and store the full branch GRM. As the GRM encodes all 
 pairwise relationships among $n$ samples, it requires at least $O(n^2)$
 time and space to compute. 
-Several human datasets, currently available and of core interest for these 
+Several datasets, currently available and of core interest for these 
 methods, consist of hundreds of thousands of 
 samples~\citep{caulfield2017national,turnbull2018100,
-bycroft2018genome,backman2021exome,halldorsson2022sequences,uk2023whole,
-all2024genomic}
+bycroft2018genome,backman2021exome,Ros-Freixedes2022pig_wgs_variants,
+halldorsson2022sequences,uk2023whole,all2024genomic}
 and genomic datasets with millions of samples will soon be 
 available~\citep{stark2024call,cook2025our}.
 At this scale, algorithms with quadratic time and space complexity are simply
@@ -168,7 +167,8 @@ In this paper, we explore the relationships between different notions of related
 describe several algorithms to perform computations of, and with, the branch GRM.
 %
 Specifically, we show how branch relatedness arises as
-the covariance of a trait process evolving along the branches of an ARG, and how this relates to other measures of relatedness.
+the covariance of a trait process evolving along the branches of an ARG,
+and how this relates to other measures of relatedness.
 %
 We undertake a comparison of pedigree and branch relatedness
 for simulated data from a real pedigree of the French-Canadian population of
