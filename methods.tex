@@ -1020,7 +1020,20 @@ The new variable $w_k(n)$ is the sum of sample weights below $n$ in tree $T_k$:
 which is a familiar term from \citet{ralph2020efficiently}.
 Although a single entry of $\mathbf{C}\mathbf{w}$ could be computed efficiently
 from the algorithm in \citet{ralph2020efficiently},
-it doesn't scale well because it would require separate set of weights for each entry of the vector.
+it doesn't scale well because it requires a separate set of weights for 
+each entry of the vector.
+
+% We can see from equation~\eqref{eq:similar_ralph2020} that $\mathbf{C}\mathbf{w}$ is
+% a sum of the contributions $\ell_{T_k}(n)w_k(n)$ of nodes specific to local trees.
+% Adding these contributions directly to the entries of $\mathbf{C}\mathbf{w}$ is
+% inefficient due to the sheer number of node and sample pairs.
+% We can mitigate this by pushing down the contribution of the nodes only to their adjacent child nodes at a time,
+% in the hope that the contributions will be passed to the correct samples corresponding to the entries of $\mathbf{C}\mathbf{w}$.
+% This is because the local connection between the nodes is extremely sparse in the tree sequence.
+% The role of value $v(\cdot)$ is precisely to deliver the contributions correctly downwards the trees.
+% For each tree $T_k$, we want to ensure that $n$'s contribution is passed down only to
+% the samples $s$ such that $s \le_{T_k} n$.
+% A straightforward way is to pass down the contributions at every position $k$.
 
 % Paragraph on efficient way of computing the matrix-vector product
 We present an efficient algorithm for computing the entire matrix-vector product.
@@ -1028,13 +1041,13 @@ The general idea is simple: as we move left-to-right along the tree sequence,
 we keep track of two things for each node $n$:
 the \textit{weight} $w(n)$ of the node in the current tree ($w_k(n)$ above) and
 the \textit{value} $v(n)$ of the haplotype carried by $n$,
-which will contribute to all descendants of $n$ (we will explain the role of $v(\cdot)$ in detail shortly).
+which will contribute to all descendants of $n$.
+ % (we will explain the role of $v(\cdot)$ in detail shortly).
 Additionally, we keep track of the last \textit{position} $x(n)$ in which the node was updated.
 As we move along the genome, we update any nodes ancestral to any changes in the tree:
 all other nodes are the roots of unchanged subtrees and hence remains unchanged.
 As seen above, each branch contributes to potentially many entries in the output vector,
 so by accumulating values of haplotypes, we reduce the amount of necessary work.
-
 
 % The algorithm that is used in practice is a modification of the one that we presented in the main paragraphs.
 % $v(n)$ does not retain its previous interpretation of values that $n$ has inherited from its ancestors
@@ -1052,8 +1065,10 @@ so by accumulating values of haplotypes, we reduce the amount of necessary work.
     $\ell_T(n) = t_{p(n)} - t_n$ be the length of the branch above $n$ in $T$ (or zero, if $n$ has no parent),
     initialize $k = 1$, $x(n) = 0$, and $v(n) = 0$ for all $n \in \mathbf{V}$.
     Set $w(s) = w_s$ for each sample $s$, and $w(n)=0$ for all other nodes.
-    At all times, define 
-    $z(n) = \ell_{T_k}(n) (b_k - x(n)) $ where $T_k$ is the current tree.
+    % Is this correct Peter? This really confused me for a while, using the 
+    % same notation for arrays we're storing and functions.
+    Let $z(n) = \ell_{T_k}(n) (b_k - x(n))$ be a function 
+    computed from the current values of $k$ and $x$ at all times.
 }
 
 \algstep{V1.}{Remove edges}{
@@ -1082,7 +1097,7 @@ so by accumulating values of haplotypes, we reduce the amount of necessary work.
 
 \algstep{V3.}{Iteration}{
     If $k < N$,
-    set $k = k + 1$ and return to \algorithmref{\textbf{V1}}.
+    set $k \pluseq 1$ and return to \algorithmref{\textbf{V1}}.
     Otherwise, set $y_s = v(s)$ for $1 \le s \le n_S$ and finish.
 }
 
@@ -1152,31 +1167,39 @@ so by accumulating values of haplotypes, we reduce the amount of necessary work.
 
 % \end{taocpalg}
 
-% Paragraph on describing the matvec algorithm
-We can see from equation~\eqref{eq:similar_ralph2020} that $\mathbf{C}\mathbf{w}$ is
-a sum of the contributions $\ell_{T_k}(n)w_k(n)$ of nodes specific to local trees.
-Adding these contributions directly to the entries of $\mathbf{C}\mathbf{w}$ is
-inefficient due to the sheer number of node and sample pairs.
-We can mitigate this by pushing down the contribution of the nodes only to their adjacent child nodes at a time,
-in the hope that the contributions will be passed to the correct samples corresponding to the entries of $\mathbf{C}\mathbf{w}$.
-This is because the local connection between the nodes is extremely sparse in the tree sequence.
-The role of value $v(\cdot)$ is precisely to deliver the contributions correctly downwards the trees.
-For each tree $T_k$, we want to ensure that $n$'s contribution is passed down only to
-the samples $s$ such that $s \le_{T_k} n$.
-A straightforward way is to pass down the contributions at every position $k$.
-Notice that the samples below a node do not change until the subtree beneath it changes.
-This change is triggered by edge insertions and deletions happening below the edge,
-so we wait until the change happens.
+Algorithm V follows a similar structure to previous incremental 
+algorithms~\citep{kelleher2016efficient,ralph2020efficiently}:
+at each tree transition we update some global state to account for the 
+insertion and removal of the edges affected. Here, the overall 
+goal is different: rather than keeping track of some cumulative value
+among the nodes in a given subtree (say, total branch length) we are instead
+keeping track of the total contribution to each node from nodes
+\emph{ancestral to it}.
+By some subtle bookkeeping, we can keep track of the cumulative 
+contribution to each node, in only updating each node when 
+it is affected by an edge insertion or removal.
+% Notice that the samples below a node do not change until the subtree beneath it changes.
+% This change is triggered by edge insertions and deletions happening below the edge,
+% so we wait until the change happens.
 Each node accumulates the contributions that are passed down from above
 until an edge below it is added or removed.
-This contribution is stored in $v(n)$ and passed down to the child nodes of $n$ when the subtree changes.
-This corresponds to the operations in $\mathbf{V1}$ and $\mathbf{V2}$
-that happen along the path from the root to $p$.
-After passing down $v(n)$, it is set to $0$ and $x(n)$ is set to $b_k$ (the current position).
-Then, $v(n)$ repeats to accumulate the contributions from above, including itself,
-for the newly updated set of samples.
-Lastly, we add or subtract the weights of $c$ from the nodes above similarly to
-the algorithm in \citet{ralph2020efficiently} to keep the weights up-to-date.
+At each edge insertion or removal $v(n)$ is updated by traversing up
+to the root of the current subtree (also keeping the weights $w(n)$
+up to date), and the accumulated 
+contribution passed down to the child node of the edge $c$.
+Finally, we set $x(c)$ is set to $b_k$ (the current position) to mark
+the last position this node was updated.
+
+The above explanation is a rough sketch of how the algorithm works;
+a full proof of correctness is provided in Appendix~\ref{sec:proof-algv-correct}.
+The algorithm has been implemented in the \texttt{genetic\_relatedness\_vector}
+in \tskit{}, and extensively tested.
+
+% After passing down $v(n)$, it is set to $0$ and $x(n)$ is set to $b_k$ (the current position).
+% Then, $v(n)$ repeats to accumulate the contributions from above, including itself,
+% for the newly updated set of samples.
+% Lastly, we add or subtract the weights of $c$ from the nodes above similarly to
+% the algorithm in \citet{ralph2020efficiently} to keep the weights up-to-date.
 
 % JK: These notes belong in the explanation bit, maybe?
 % % Paragraph on the efficiency of the algorithm
