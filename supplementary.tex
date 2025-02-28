@@ -624,3 +624,16 @@ It is merely an array designed for dynamic programming
 that carries intermediate numbers for each node.
 The way in which the algorithm modifies $v(\cdot)$ ensures that whenever we modify trees by deleting or inserting an edge, 
 the sum over $v(r)+z(r)w(r)$  for $ r \ge_{T}n $ equals to the working sum of the right-hand side of equation (\ref{eqn:matvec_consistent}).
+
+\subsection{Benchmarking branch GRM computations}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\textwidth]{Figures/SIFig_benchmarking_plot.png}
+    \label{fig:SI_benchmarking}
+    \caption{Time efficiency of different implementations of branch GRM computation.
+    Each dot corresponds to the average time taken across ten simulations with different random seeds.
+    Error bars represent the range in time taken across the ten simulations.
+    (A) Branch GRM computation with genome sequence length fixed at $10^{7}$ and varying the number of samples.
+    (B) Branch GRM computation with number of sample nodes fixed at $2^{10}$ and varying genome sequence length.}
+\end{figure}

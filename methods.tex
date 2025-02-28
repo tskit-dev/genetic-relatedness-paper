@@ -575,9 +575,9 @@ For the latter, we obtained an ARG from pedigree- and ancestry-informed simulati
 and computed branch GRM from the ARG.
 %
 We simulated 100 such ARGs to evaluate the variance in branch GRM within a fixed pedigree.
-See the methods for more details on the dataset and simulations performed.
+See Methods for more details on the dataset and simulations performed.
 
-\subsubsection{Principal components analyses}
+%\subsubsection{Principal components analyses}
 
 \begin{figure}
     \centering
@@ -608,8 +608,8 @@ PCs 3 and 4 distinguish between individuals of each of the five regions except L
 PCs 5 and 6 illustrate a clear distinction between L'Assomption and Chaleur Bay.
 %
 Only a few individuals deviated from the clusters.
-\todo[inline]{Luke: are these descendants of migrants?}
-\todo[inline]{Gregor: Yes. The great majority of French Canadian ancestry is attributed to French Settlers from four hundred years ago. Most settlers would have arrived in Quebec City, then radiated out from there. Each of the samples regions would have been founded by migrants who descended from these Quebec City founders.}
+%\todo[inline]{Luke: are these descendants of migrants?}
+%\todo[inline]{Gregor: Yes. The great majority of French Canadian ancestry is attributed to French Settlers from four hundred years ago. Most settlers would have arrived in Quebec City, then radiated out from there. Each of the samples regions would have been founded by migrants who descended from these Quebec City founders.}
 
 % Paragraph on branch PCs
 The branch PCs also show the population structure (Figure~\ref{fig:PCA_map}D-F),
@@ -621,41 +621,25 @@ This difference could be because branch PCs are based on the ARG,
 which captures deeper ancestry than the pedigree,
 however due to the shared bottleneck and pedigree missingness
 further research is needed to study the source of these differences.
-\todo[inline]{Luke: would any of these changes make sense in the light of known ancestry that is not encoded in pedigree?} 
-\todo[inline]{Gregor: I'm not sure I agree with the statement "branch PCs are based on the ARG, which captures deeper ancestry than the pedigree". The ARG is based on the same information as the pedigree, if anything the pedigree has more information that the ARG because of the finite size of the genome.
-
-If anything, I think the differences could be attributed to more noise in the ARG compared to the pedigree. The genome simulations introduce a lot of "noise" (see figure 4) and I think the PCs reflect a similar noise. 
-
-Brieuc and I had previously identified that individuals with shallow pedigrees tend to appear at the origin of the PCA. These "shallow" individuals will be most similar to the simulated founders (EUR from the tennessen OOA model). Even though we removed individuals with very shallow genealogies, I suspect that pedigree missingness could still play a role in influencing the number of individuals near the origin of the PCA -- for both pedigree and ARG relatedness. }
+%\todo[inline]{Luke: would any of these changes make sense in the light of known ancestry that is not encoded in pedigree?} 
+%\todo[inline]{Gregor: I'm not sure I agree with the statement "branch PCs are based on the ARG, which captures deeper ancestry than the pedigree". The ARG is based on the same information as the pedigree, if anything the pedigree has more information that the ARG because of the finite size of the genome.
+%If anything, I think the differences could be attributed to more noise in the ARG compared to the pedigree. The genome simulations introduce a lot of "noise" (see figure 4) and I think the PCs reflect a similar noise. 
+%Brieuc and I had previously identified that individuals with shallow pedigrees tend to appear at the origin of the PCA. These "shallow" individuals will be most similar to the simulated founders (EUR from the tennessen OOA model). Even though we removed individuals with very shallow genealogies, I suspect that pedigree missingness could still play a role in influencing the number of individuals near the origin of the PCA -- for both pedigree and ARG relatedness. }
 %
 Second, branch PCs show more variation than pedigree PCs.
 %
-This higher variation is partly because we have used one simulated ARG (for one chromosome)
-for the branch GRM, leading to a high variance in branch PCs,
-but again also because of deeper ancestry encoded in the ARG,
-which pedigree does not capture.
+%This higher variation is partly because we have used one simulated ARG (for one chromosome) for the branch GRM, leading to a high variance in branch PCs, but again also because of deeper ancestry encoded in the ARG, which pedigree does not capture.
+This higher variation is due to the randomness of genetic inheritance within a single chromosome, which is not reflected in the pedigree. This variability is also evidenced when comparing relatedness between a subset of 250 individuals: a clearer structure emerges with pedigree GRM than with branch GRM (Figure~\ref{fig:grm_heatmap}).
 % 
-\todo[inline]{Brieuc: Confim/check/rewrite this sentence (on the one ARG used for branch GRM}
-\todo[inline]{Brieuc: Could we average/sum? ~23 branch GRMs, and run PCA on that and
-show that this reduces noise in branch PCs (after the initial submission!?)
-Would this be another row in this plot or a plot in supplement?}
+%\todo[inline]{Brieuc: Confim/check/rewrite this sentence (on the one ARG used for branch GRM}
 %
 % When we have computed branch GRM across 23 simulated ARGs (for 23 chromosomes) within the fixed pedigree,
 % the variance in corresponding branch PCs decreased (Figure~\ref{fig:PCA_map}G-I / \ref{fig:PCA_map23}).
 %
-\todo[inline]{Brieuc: Could we show genotype PCA compared to branch PCA in supplement?
-(after the initial submission!?)}
-
-\subsubsection{Comparing pedigree and branch GRM}
-
-Comparison of relatedness between 250 French-Canadian individuals shows
-a stronger structure with pedigree GRM than with branch GRM (Figure~\ref{fig:grm_heatmap}).
+%\subsubsection{Comparing pedigree and branch GRM}
+%Comparison of relatedness between 250 French-Canadian i
+%The difference between the two GRMs is stark due to the randomness of genetic inheritance for a single chromosome, which is not captured by pedigree.
 %
-The difference between the two GRMs is stark
-due to the randomness of genetic inheritance for a single chromosome,
-which is not captured by pedigree.
-%
-\todo[inline]{Brieuc: Could we average/sum? ~23 branch GRMs, and show heatmap on that? (after the initial submission!?)}
 % When branch GRM is computed across 23 simulated ARGs (for 23 chromosomes) within the fixed pedigree,
 % the similarity between the pedigree and branch GRMs increased (Figure~\ref{fig:grm_heatmap23}).
 %
@@ -677,7 +661,7 @@ while this is not the case with branch relatedness.
     \label{fig:grm_heatmap}
 \end{figure}
 
-\subsubsection{Variability in branch GRM within a fixed pedigree}
+%\subsubsection{Variability in branch GRM within a fixed pedigree}
 
 % Paragraph on main relationship between branch and pedigree relatedness
 Next, we explored the variability in branch relatedness across the 100 simulated ARGs
@@ -811,14 +795,14 @@ The overall complexity is therefore $O(n_T n_S^2)$,
 as we need to perform $O(n_S^2)$ work for all $n_T$ trees.
 While this is the same complexity as the incremental approach outlined
 above, this ``naive'' approach is in practise much faster, and 
-is therefore the implementation used in \tskit{}.
+is therefore the implementation used in \tskit{} via the \tsGRM{} method.
 This is essentially the same algorithm as used in the 
 \eGRM{} package~\citet{fan2022genealogical}, although it is implemented in
 Python and does not use an efficient approach of bulk MRCA queries. 
 This approach therefore requires $O(n_T n_S^2 \log^2{n_S})$ time, 
 as each MRCA query requires $O$(tree height) time, which is $\log n_S$
 if the trees are balanced~\citep{kelleher2016efficient}.
-Supplementary Fig~XX shows that the \tskit{} implementation 
+Supplementary Fig~\ref{fig:SI_benchmarking} shows that the \tskit{} implementation 
 significantly outperforms the \eGRM{}
 implementation~\citep{fan2022genealogical}.
 
@@ -826,12 +810,11 @@ The complexity of computing the branch GRM exactly is therefore $O(n_T n_S^2)$,
 which has significant implications for its utility in large-scale studies:
 quadratic algorithms are simply not feasible when we have millions 
 of samples. 
-(The approximate  mutation-dropping approach of \citet{zhang2023biobank}
+(The approximate mutation-dropping approach of \citet{zhang2023biobank}
 is not directly comparable.)
 In the next section, however, we show that it is not necessary
 to compute the branch GRM explictly in order to \emph{use} it. For many 
-applications that use the GRM we can implicitly compute it without 
-materialising the actual matrix.
+applications that use the GRM we can implicitly compute it without materialising the actual matrix.
 
 
 % and the \ARGneedlelib{} library implements the
@@ -1231,35 +1214,24 @@ This reduces the amount of computation considerably.
     \centering
     \includegraphics[width=\textwidth]{Figures/Fig2_benchmarking_plot.png}
     \label{fig:benchmarking}
-    \caption{Time efficiency of different implementations of branch GRM and PCA computations.
+    \caption{Time efficiency of different implementations of PCA computations.
     Each dot corresponds to the average time taken across ten simulations with different random seeds.
     Error bars represent the range in time taken across the ten simulations.
-    (A) Branch GRM computation with genome sequence length fixed at $10^{7}$ and varying the number of samples.
-    (B) Branch GRM computation with number of sample nodes fixed at $2^{10}$ and varying genome sequence length.
-    (C) PCA with genome sequence length fixed at $10^{7}$ and varying the number of samples.
-    (D) PCA with number of sample nodes fixed at $2^{10}$ and varying genome sequence length.
-    Branch mode refers to branch GRM and site mode refers to genotype GRM.}
+    (A) PCA with genome sequence length fixed at $10^{7}$ and varying the number of samples.
+    (B) PCA with number of sample nodes fixed at $2^{10}$ and varying genome sequence length.
+    Branch mode refers to branch PCA and site mode refers to genotype PCA.}
 \end{figure}
-\todo[inline]{Brieuc: Can you ensure the labels are shown in Fig2C for all lines (blue and red don't have them)?
-Or was this "omission" intentional"? Maybe also round-off the decimal digits.}
 
-
-The efficiency of the branch-PCA algorithm (and the underlying GRM-vector
-multiplication algorithm is illustrated in Fig~\ref{fig:benchmarking}. 
-[DESCRIPTION OF WHAT WE SEE].
+The efficiency of the branch-PCA algorithm (and the underlying GRM-vector multiplication algorithm is illustrated in Fig~\ref{fig:benchmarking}. 
 See Methods for details of the benchmarking methodology.
-
-
 % Paragraph on PCA benchmark times
-For PCA, we observed significant benefits from using implementations
-that avoided the storage of the GRM or genotype matrix in memory,
-particularly for larger numbers of samples (Figure~\ref{fig:benchmarking}C,D).
+For PCA, we observed significant benefits from using implementations that avoided the storage of the GRM or genotype matrix in memory,
+particularly for larger numbers of samples (Figure~\ref{fig:benchmarking}).
 %
 Notably, \tsGRM{} failed due to memory limits
 when computing the branch GRM for $2^{12} = 4096$ sample nodes and
 when computing the genotype (site) GRM for $2^{14} = 16384$ sample nodes.
-\todo[inline]{We should mention in M\&M that \tsGRM{} can do site version too!
-or just somewhere (discussion - but say that we ideally want to work with branches!?)}
+%\todo[inline]{We should mention in M\&M that \tsGRM{} can do site version too! or just somewhere (discussion - but say that we ideally want to work with branches!?)}
 %
 Implementation of randomised PCA on genotype matrix in \scikitallel{}
 failed due to memory limits for $2^{16} = 65536$ sample nodes.
@@ -1271,12 +1243,9 @@ Specifically, both \tsPCA{} and \eigsh{} from \scipy{} using \tsGRw{}
 as a linear operator were able to scale to $2^{20} = 1,048,576$ samples.
 %
 The native implementation of \tsPCA{} consistently outperformed \eigsh{},
-with the relative difference remaining reasonably stable with the number of samples,
-and increasing with sequence length.
+with the relative difference decreasing slightly with the number of samples, and increasing with sequence length.
 %
-The difference in absolute compute time increased with both sample size and sequence length.
-\todo[inline]{Brieuc: Lookingh at the plot C, I don't see this - the difference is becoming smaller there;
-but the difference is growing in plot D. Revise the text or plot?}
+Moreover, the difference in absolute compute time increased with both sample size and sequence length.
 %
 For example, \tsPCA{} took on average
 0.27s for $2^{12} = 4,096$ samples and
@@ -1286,5 +1255,4 @@ while \eigsh{} took
 119.7s for $2^{20} = 1,048,576$ samples.
 %
 This difference primarily reflects the differences in the underlying algorithms used for PCA:
-\tsPCA{} uses randomised singular value decomposition while \eigsh{} uses
-\todo[inline]{mention what algorithm is used in eigsh - full or truncated eigen or svd? Should we move this sentence in dicsussion instead?}
+\tsPCA{} uses a randomised singular value decomposition while \eigsh{} uses the implicitly restarted Lanczos method \citep{lehoucq1998arpack}.

@@ -108,7 +108,7 @@ which provides an ARG-based analogue to the pedigree GRM.
 % --- GAP ---------------------------------------------------------------------
 
 % Paragraph on The gap
-However, the scalability of current ARG-based relatedness methods is limited by their need to store the full branch GRM in memory. This restricts their use for downstream tasks such as principal component analysis (PCA) to datasets of between 10,000 and 100,000 individuals, depending on the available computational resources. Such downstream analyses can sometimes be performed instead via matrix-vector operations. The Algorithms that instead rely on matrix-vector operations, that is 
+The scalability of current ARG-based relatedness methods is constrained by their need to store the full branch GRM in memory, limiting downstream analyses such as principal component analysis (PCA) to datasets of 10,000 to 100,000 individuals, depending on available computational resources. However, many of these analyses can be performed using linear algebra techniques that rely solely on matrix-vector operations. That is, these algorithms require only the product of the matrix with an arbitrary vector, eliminating the need to store the full matrix. Efficient algorithms for computing such matrix-vector products can therefore significantly enhance the scalability of downstream analyses. \todo[inline]{Add a bit more specificity around how PCA can be performed using matrix-vector operations, or examples of other downstream tasks that can be done with matrix-vector operations?}
 %
 %Operationally, \citet{fan2022genealogical} shifted the estimation of relatedness from summing over loci of a genotype matrix and for each locus evaluating genotype similarity between samples (for genotype GRM) to summing over local trees of an ARG and for each local tree evaluating time between samples' MRCA and the root (for branch GRM).
 %
@@ -127,8 +127,12 @@ In this paper, we explore the relationships between different notions of related
 describe several algorithms to perform computations of, and with, the branch GRM.
 %
 Specifically, we show how branch relatedness arises as
-the covariance of a trait process evolving along the branches of an ARG,
-and how this relates to other measures of relatedness.
+the covariance of a trait process evolving along the branches of an ARG, and how this relates to other measures of relatedness.
+%
+We undertake a comparison of pedigree and branch relatedness
+for simulated data from a real pedigree of the French-Canadian population of
+\citet{andersontrocme2023genes},
+illustrating the variability of the branch GRM within a fixed pedigree.
 %
 We describe a procedure to compute the entire branch GRM by efficiently computing TMRCAs
 using the Schieber-Vishkin algorithm \citep{Schieber1988On}.
@@ -138,11 +142,6 @@ which avoids storing the full branch GRM in memory.
 %
 This facilitates the use of the randomised singular value decomposition \citep{halko2011findingstructure}
 for PCA of over a million samples.
-%
-We end with a comparison of pedigree and branch relatedness
-for simulated data from a real pedigree of the French-Canadian population of
-\citet{andersontrocme2023genes},
-illustrating the variability of the branch GRM within a fixed pedigree.
 %
 All computations are demonstrated using Python \tskit{} library
 \citep{ralph2020efficiently, kelleher2024tskit}.

@@ -4,9 +4,7 @@
 \subsection{French-Canadian pedigree}
 
 % Paragraph on the French-Canadian pedigree
-To demonstrate the similarities and differences between pedigree and branch relatedness,
-we perform a range of analyses on a subset of an extended pedigree of
-French-Canadian individuals from the BALSAC project \citep{vezina2020overview}.
+To demonstrate the similarities and differences between pedigree and branch relatedness, we performed a range of analyses on a subset of an extended pedigree of French-Canadian individuals from the BALSAC project \citep{vezina2020overview}.
 %
 Spanning over 400 years, this pedigree is compiled from over 4.5 million parish records across Quebec.
 %
@@ -14,8 +12,9 @@ In this paper, we restricted our analyses to five regions,
 each containing five neighboring parishes (Table~\ref{tab:parishes}).
 %
 Using the migratory patterns from \citet{andersontrocme2023genes} as a reference,
-we identified the five regions composed of historically connected parishes to minimize excessive relatedness
-within each sampling unit while also mitigating the risk of de-anonymization.
+we identified five distinct regions and sampled individuals from parishes within each region 
+to minimize excessive relatedness within each sampling unit 
+while also mitigating the risk of de-anonymization.
 %
 Our data access agreements with BALSAC dictated that we use parish records of more than one hundred years old
 (before 1924) to publish their metadata and summary statistics.
@@ -78,7 +77,7 @@ to obtain an ARG within the pedigree.
 Second, it further samples chromosome inheritance through the assumed demographic model
 to recapitate the ARG from the first stage.
 %
-We simulated the human chromosome 3 in this study because ... \todo{Brieuc: say something here}.
+We elected to simulate a single, large chromosome - chromosome 3 - over the whole genome to reduce the overall computational cost of our study.
 %
 To study the stochastic variation in recombination and coalescence events within the pedigree,
 we simulated 100 replicates of an ARG using different random seeds.
@@ -97,9 +96,7 @@ among the probands and then eigen-decomposed the GRM using
 For branch PCA, to avoid undue influence of large, low-recombination regions,
 we first remapped genomic coordinates from base pairs to genetic distance,
 using the HapMap II genetic map provided by \texttt{stdpopsim} \citep{adrion2020stdpopsim}.
-\todo[inline]{Brieuc/Hanbin: should this have been done also for branch GRM and hence the
-above sentence should be moved above where we mention computation of the branch GRM?
-(likely we have no time for this for the initial submission!)}
+\todo[inline]{Should this have been done also for branch GRM? Pinging @Peter for this.}
 %
 We then used Algorithm~\algorithmref{rPCA} to compute the first six PCs.
 
@@ -117,13 +114,9 @@ With these 250 individuals, we computed the pedigree GRM and a branch GRM
 for each of the 100 simulated ARGs.
 
 % Paragraph in one vs many ARGs/chromosomes and code
-In results, we either show outputs based on branch GRM for chromosome \textcolor{red}{3?} or
-for multiple chromosomes.
-\todo{Brieuc: fix chromosome number}
+%In results, we either show outputs based on branch GRM for chromosome 3.
 %
-The code for performing these analyses and the simulation studies is available at
-\url{https://github.com/brieuclehmann/genome_simulations/tree/brieuc}.
-\todo{Brieuc: Update URL!?}
+% The code for performing these analyses and the simulation studies %is available at \url{https://github.com/brieuclehmann/genome_simulations/tree/brieuc}.
 
 
 % --- Benchmarks ---------------------------------------------------------
@@ -135,14 +128,13 @@ with simulations, recording the time for calculations for a range of tree sequen
 %
 We simulated the tree sequences with \texttt{msprime} \citep{baumdicker2022efficient},
 and varied either the genome sequence or the number of sample nodes (=haploid individuals).
-
+%
 All computations were carried out on a single CPU with 4GB of RAM.
 
 \subsubsection{Branch GRM}
 
-We compared our algorithm~(X) for computing the branch GRM to
+We compared \tsGRM{} for computing the branch GRM to
 the implementation in the \eGRM{} package \citep{fan2022genealogical}.
-\todo{Reference equation/algorithm (the one that does something with D?)}
 %
 The default values for simulations parameters were $10^{7}$ for the genome sequence length,
 $2^{10}$ for the number of samples, and effective population size of $10^4$.
@@ -161,8 +153,7 @@ We assessed our branch PCA Algorithm~\algorithmref{rPCA} against a number of com
 using \scipy{} \citep{Virtanen2020SciPy} and \scikitallel{} \citep{Miles2024scikit}:
 %
 \begin{itemize}
-    \item Calculating branch GRM using equation~(X) followed by eigenanalysis using \eigh{} function from \scipy{}.
-    \todo{Add equation/algorithm (the one that does something with D?)}
+    \item Calculating branch GRM using \tsGRM{} followed by eigenanalysis using \eigh{} function from \scipy{}.
     \item Eigenanalysis of branch GRM using \eigsh{} function from \scipy{} using the sparse matrix-vector product Algorithm~\algorithmref{bGRM-vec} as a linear operator.
     \item Calculating genotype GRM using equation~\eqref{eqn:grm} followed by eigenanalysis using \eigh{} function from \scipy{}.
     \item Randomized PCA of genotype matrix using \texttt{randomized\_pca} function from \scikitallel{}.
