@@ -22,14 +22,15 @@ quantitative genetics \citep{falconer1996introduction, lynch1998genetics},
 and to estimate genetic changes in phenotypic variation over time in
 evolutionary genetics \citep{walsh2018evolution, arnold2023evolutionary}.
 %
-For a set of individuals, we store their pairwise relatedness in a genetic relatedness matrix (GRM).
+For a set of individuals, we operationally store their pairwise relatedness in
+a genetic relatedness matrix (GRM).
 %
 Over time, genetic relatedness and GRMs have been defined according to
 pedigree \citep{fisher1919correlation, wright1922coefficients},
 genotype \citep{cotterman1940calculus, malecot1948mathematiques, malecot1969mathemathics},
 phylogeny \citep{felsenstein1985phylogenies,lynch1991methods},
 coalescent times \citep{slatkin1991inbreeding}, and
-% moving this two paragraphs down -> let's keep it here to create a link to the next paragraph
+% moving ARG two paragraphs down -> let's keep it here to create a link to the next paragraph
 % (as in why ARG
 recently, ancestral recombination graph \citep{tsambos2022efficient, fan2022genealogical, zhang2023biobank}.
 %
@@ -54,8 +55,7 @@ the highly efficient storage and processing of ARGs
 \citep{kelleher2016efficient, zhu2024variance, dehaas2024enabling}.
 %
 In this paper we make use of the \textit{succinct tree sequence} 
-ARG encoding
-\citep{ralph2020efficiently, wong2023general}
+ARG encoding \citep{ralph2020efficiently, wong2023general}
 made available through the \tskit{} library.
 
 % Paragraph on Branch relatedness
@@ -109,12 +109,16 @@ which provides an ARG-based analogue to the pedigree GRM.
 to estimate heritability and to perform a ``genealogy-wide association scan'',
 showing that this approach is more powerful at detecting the effect of rare variants
 than association analysis on SNP array genotypes imputed to whole-genome sequence genotypes.
+%
+\citet{gunnarsson2024scalable} extended this work to a large whole-genome sequence dataset
+and \citet{zhu2024variance} used randomized linear algebra to
+scale the estimation of heritability and region-based association testing with branch GRM.
 
 % --- GAP ---------------------------------------------------------------------
 
 % Paragraph on The gap
 The scalability of current ARG-based relatedness methods, however, is constrained by
-their need generate and store the full branch GRM. As the GRM encodes all 
+their need to generate and store the full branch GRM. As the GRM encodes all 
 pairwise relationships among $n$ samples, it requires at least $O(n^2)$
 time and space to compute. 
 Several datasets, currently available and of core interest for these 
@@ -122,13 +126,14 @@ methods, consist of hundreds of thousands of
 samples~\citep{caulfield2017national,turnbull2018100,
 bycroft2018genome,backman2021exome,Ros-Freixedes2022pig_wgs_variants,
 halldorsson2022sequences,uk2023whole,all2024genomic}
-and genomic datasets with millions of samples will soon be 
-available~\citep{stark2024call,cook2025our}.
+and genomic datasets with millions of samples are increasingly available
+\citep[e.g.][]{Cesarani2022, stark2024call,cook2025our, Cole2025Invited}.
 At this scale, algorithms with quadratic time and space complexity are simply
 not feasible, and there is a pressing need for more efficient approaches.
 It is important to note, however, that the GRM itself is often not the goal;
 rather, we are usually interested in what we can do \emph{with} the GRM.
-Applications such as principal component analysis (PCA), for example, are
+For example, population genetic applications such as principal component analysis (PCA)
+and quantitative genetic applications such as estimation of heritability, are
 defined in terms of core linear algebra operations performed on the GRM,
 and the outputs are of much smaller dimension. Given that all the information
 in a GRM is encoded in an ARG, there is the possibility that we can bypass
@@ -149,7 +154,6 @@ of interest directly.
 % matrix-vector operations, or examples of other downstream tasks that can be
 % done with matrix-vector operations?}
 
-%
 %Operationally, \citet{fan2022genealogical} shifted the estimation of relatedness from summing over loci of a genotype matrix and for each locus evaluating genotype similarity between samples (for genotype GRM) to summing over local trees of an ARG and for each local tree evaluating time between samples' MRCA and the root (for branch GRM).
 %
 %Iterating over local trees can be computationally expensive for large genomic datasets with a huge number of past recombination events, and hence a huge number of local trees.
@@ -220,7 +224,7 @@ $O(n + t \log{n})$ time complexity and $O(n)$ space complexity.
 We can therefore compute branch GRM-vector products 
 \emph{substantially faster} and with less memory 
 than the branch GRM itself.
-We illustrate the utility of this approach by presenting a 
+We illustrate the utility of this approach by presenting a
 randomised singular value decomposition method 
 for PCA on the branch GRM that
 uses the new branch GRM-vector product algorithm (implemented 

@@ -111,8 +111,8 @@ is only consequential for situations where mixed ploidy is considered
 and implies a particular model of dosage compensation or
 how we summarise relatedness across genome copies.
 %
-(Mixed ploidy arises with sex chromosomes or haplodiploids \citep{grossman1989inbreeding},
-or summarizing relatedness between groups with different number of individuals \citep{cockerham1976group}.)
+Mixed ploidy arises with sex chromosomes or haplodiploids \citep{grossman1989inbreeding},
+or summarizing relatedness between groups with different number of individuals \citep{cockerham1976group}.
 %
 Many measures of relatedness make use of this trait model (explictly or implictly),
 in which case relatedness is proportional to covariance between individuals' trait values.
@@ -138,7 +138,7 @@ covariance between the traits of individuals $i$ and $j$ is:
 \end{align}
 %
 Note that this is the covariance of $Z(i)$ and $Z(j)$ as random variables,
-averaging over random assignment of allelic affects,
+averaging over random assignment of allelic effects,
 but with genotypes fixed ($p(i,\ell)$ is not random).
 
 % --- COV with invariant loci --------------------------------------------
@@ -149,7 +149,7 @@ depends on the choice of ancestral allele.
 %
 This seems undesirable for a measure of relatedness;
 choosing a point farther back in time as a reference,
-so that a different allele is ``ancestral'' and the derived allele is fixed,
+so that a different allele is ``ancestral'' and the derived allele is likely fixed,
 should not affect relatedness within the population.
 %
 It does affect the relatedness calculated above because this is, implicitly,
@@ -173,7 +173,7 @@ $\bar{p}(\ell) = (p(1,\ell) + \cdots + p(n_I,\ell))/{n_I}$.
 %
 % Again by bilinearity of covariance,
 The covariance of the traits 
-after centering to the sample mean is
+after centering to the sample mean is:
 %
 \begin{align} \label{eqn:trait_cov}
     \begin{split}
@@ -196,7 +196,7 @@ and $L$ a random, uniformly chosen locus,
 then, we can rewrite $\bar Z = \E[Z(U)]$ and $\bar p(\ell) = \E[p(U,\ell)]$.
 %
 Consequently, the two sides of~\eqref{eqn:trait_cov}
-are also equal to
+are also equal to:
 %
 \begin{align} \label{eqn:trait_cov_avg}
     \begin{split}
@@ -250,15 +250,12 @@ divided by $n_L$, after setting $\sigma^2=1$.
 The corresponding expression for diploids uses
 in place of $\mathbf{G}$ the allelic dosage matrix
 whose entries are the proportion of non-reference alleles carried by the individual.
-(It is more common in the literature to define the allelic dosage matrix
+It is more common in the literature to define the allelic dosage matrix
 as the \emph{number} of non-reference alleles;
 here we define it as the proportion so that it agrees with~\eqref{eqn:trait_cov};
 this is necessary because 
 of the convention to define $Z(i)$ as the average across the $p$ genome copies.
-For diploids this results in an additional factor of four.)
-% and only differs from~\eqref{eqn:trait_cov} by an additional factor of 4.
-\todo{GG: I would like to check this factor of 4 with Peter.}
-\todo{PR: how's that?}
+For diploids this results in an additional factor of four.
 
 % --- COV 3rd time -------------------------------------------------------
 
@@ -348,14 +345,11 @@ relative to the rest of individuals:
 %
 where the expectation is over the choice of U and V.
 %
-This interpretation is closely related to the definition of kinship $K_{i,j}$
+This interpretation is closely related to the definition of kinship
 between individuals $i$ and $j$ as the
 ``the probability of a match between alleles drawn at random from each of them'',
 averaged over loci, and with the alleles drawn with replacement if $i=j$
-(this is $K_{c0}$ in \citet{speed2015relatedness};
-similar definitions are in \citet{vanraden2008efficient} and \citet{yang2010common}).
-%
-This probabilistic notion of relatedness dates back to \citet{malecot1969mathemathics}.
+\citep{malecot1969mathemathics, speed2015relatedness}.
 %
 See also \citet{weir2017unified, weir2018how} and \citet{ochoa2021estimating} on
 other ``relative'' kinship estimators.
@@ -440,9 +434,7 @@ where $n_T$ is the number of local trees in the ARG, % TODO: change $n_T$ to $n_
 and the expectation averages over $U$ and $V$.
 
 % Paragraph on eGRM and branch GRM
-Our definition differs slightly from the eGRM put forward by \citet{fan2022genealogical},
-who include a term analogous to the $\sqrt{p(1-p)}$ normalization
-often used in the genotype GRM.
+Our definition differs slightly from the eGRM by \citet{fan2022genealogical}
 %
 Let $S_{i,e,k} = 1$ if sample $i$ is a descendant of branch $e$
 in the $k^\text{th}$ tree and $S_{i,e,k} = 0$ otherwise,
@@ -493,7 +485,7 @@ Let $R(i)$ denote the sum along the genome of the distances from $i$ to the root
 $D(i,j)$ the sum along the genome of the distances between $i$ and $j$ in the local trees.
 %
 Then $D(i,j)$ is the branch genetic divergence between $i$ and $j$ \citep{ralph2020efficiently},
-and summing the previous relation across the genome, we get that:
+and summing the previous relation across the genome, we get:
 %
 \begin{align} \label{eqn:divergence_relatedness}
     R(i) + R(j) = 2 A(i,j) + D(i,j) .
@@ -518,25 +510,35 @@ centering matrix, the above equation says that $\mathbf{B} = - \mathbf{P} \mathb
 % \end{align*}
 
 \subsection{Branch PCA}
-\todo{I wonder if this should go after the next section comparing pedigree and branch relatedness}
 
-Principal component analysis (PCA) is a commonly used technique by which to quantify and visualise population structure from genotype data. Mathematically, PCA operates by projecting samples onto a set of orthogonal axes, each defined as a linear combination of genotype values across SNPs or other genetic variants. An iterative characterization of PCA is as follows: choose the first principal component to be the axis that captures the maximum possible variance in the data, then choose the second principal component that maximizes variance whilst being orthogonal to the first, and so on. The first three or four principal components are often presented as a low-dimensional summary of population structure.
+Principal component analysis (PCA) is a commonly used technique to quantify and visualise population structure from genotype data. Mathematically, PCA operates by projecting samples onto a set of orthogonal axes, each defined as a linear combination of genotype values across SNPs or other genetic variants. An iterative characterization of PCA is as follows: choose the first principal component to be the axis that captures the maximum possible variance in the data, then choose the second principal component that maximizes variance whilst being orthogonal to the first, and so on. The first three or four principal components are often presented as a low-dimensional summary of population structure.
 
-An equivalent way to undertake PCA is to compute the eigenvectors of the (centered) genotype GRM, in a technique known as singular value decomposition (SVD). This facilitates the use of powerful linear algebra techniques that focus on computing a subset of the principal components. This also indicates an alternative approach to characterizing population structure, namely through SVD of the branch GRM. This can be seen as a PCA of the $S$ matrix in the definition of the eGRM in Section~\ref{sec:trait-centric}. \cite{fan2022genealogical} showed that branch PCA can better capture recent population structure than genotype PCA, even when based on the same genotype information. We describe an efficient way to perform SVD of the branch GRM 
-
-Analogously, pedigree PCA can be undertaken via SVD of the pedigree GRM. \todo[inline]{Gregor: please elaborate and add citation(s)!}
+Equivalent ways to undertake PCA is
+to compute the eigenvectors of the (centered) genotype GRM or
+to compute singular value decomposition (SVD) of underlying (centered) genotype matrix.
+Both use powerful linear algebra techniques that focus on computing a subset of the principal components.
+These decomposition can be efficiently approximated with randomized algorithms that can operate on
+dense matrices or on implicitly defined matrix-vector products \citep{halko2011findingstructure}.
+\citet{mcvean2009genealogical} gave a genealogical interpretation of PCA, while
+\citet{fan2022genealogical} showed that branch PCA can better capture recent population structure than genotype PCA,
+even when based on the same genotype information.
+These developments indicate an alternative approach to characterizing population structure,
+either through dense branch GRM or implicitly defined branch GRM-vector product.
+In sub-section~\ref{subsec:matvec} we describe an efficient algorithm for
+such a product that bypasses the construction of branch GRM
+and operates directly on tree sequence encoding of an ARG.
+However, we first connect and demonstrate pedigree and branch relatedness.
 
 \subsection{Connection between pedigree and branch relatedness}
 % JK: trying to rearrange this into a narrative leading to the FC example below
 The pedigree relatedness of two individuals in a given pedigree is
 the probability that they both inherit from the same ancestral genomes within the pedigree,
 that is, that they are IBD within the pedigree \citep{malecot1969mathemathics}.
-% FIXME too many "notions"!
-While two these two notions of relatedness seem similar,
-they in fact differ fundamentally in what they measure.
 %
-Using this notion to define an ARG-based notion of relatedness would lead to ``IBD relatedness``
-and corresponding ``IBD GRM'',
+While pedigree and branch relatedness seem similar,
+they in fact differ in what they measure.
+%
+Using IBD to define an ARG-based notion of relatedness would lead to an ``IBD GRM''
 as defined by~\citet{tsambos2022efficient}.
 %
 While the IBD relatedness measures the
@@ -598,8 +600,6 @@ PCs 3 and 4 distinguish between individuals of each of the five regions except L
 PCs 5 and 6 illustrate a clear distinction between L'Assomption and Chaleur Bay.
 %
 Only a few individuals deviated from the clusters.
-%\todo[inline]{Luke: are these descendants of migrants?}
-%\todo[inline]{Gregor: Yes. The great majority of French Canadian ancestry is attributed to French Settlers from four hundred years ago. Most settlers would have arrived in Quebec City, then radiated out from there. Each of the samples regions would have been founded by migrants who descended from these Quebec City founders.}
 
 % Paragraph on branch PCs
 The branch PCs also show the population structure (Figure~\ref{fig:PCA_map}D-F),
@@ -611,15 +611,13 @@ This difference could be because branch PCs are based on the ARG,
 which captures deeper ancestry than the pedigree,
 however due to the shared bottleneck and pedigree missingness
 further research is needed to study the source of these differences.
-%\todo[inline]{Luke: would any of these changes make sense in the light of known ancestry that is not encoded in pedigree?} 
-%\todo[inline]{Gregor: I'm not sure I agree with the statement "branch PCs are based on the ARG, which captures deeper ancestry than the pedigree". The ARG is based on the same information as the pedigree, if anything the pedigree has more information that the ARG because of the finite size of the genome.
-%If anything, I think the differences could be attributed to more noise in the ARG compared to the pedigree. The genome simulations introduce a lot of "noise" (see figure 4) and I think the PCs reflect a similar noise. 
-%Brieuc and I had previously identified that individuals with shallow pedigrees tend to appear at the origin of the PCA. These "shallow" individuals will be most similar to the simulated founders (EUR from the tennessen OOA model). Even though we removed individuals with very shallow genealogies, I suspect that pedigree missingness could still play a role in influencing the number of individuals near the origin of the PCA -- for both pedigree and ARG relatedness. }
 %
 Second, branch PCs show more variation than pedigree PCs.
 %
 %This higher variation is partly because we have used one simulated ARG (for one chromosome) for the branch GRM, leading to a high variance in branch PCs, but again also because of deeper ancestry encoded in the ARG, which pedigree does not capture.
-This higher variation is due to the randomness of genetic inheritance within a single chromosome, which is not reflected in the pedigree. This variability is also evidenced when comparing relatedness between a subset of 250 individuals: a clearer structure emerges with pedigree GRM than with branch GRM (Figure~\ref{fig:grm_heatmap}).
+This higher variation is due to the randomness of genetic inheritance within a single chromosome, which is not reflected in the pedigree \citep{weir2006genetic, hill2011variation, thompson2013identity, garciacortes2013variance}.
+%
+This variability is also evidenced when comparing relatedness between a subset of 250 individuals: a clearer structure emerges with pedigree GRM than with branch GRM (Figure~\ref{fig:grm_heatmap}).
 % 
 %\todo[inline]{Brieuc: Confim/check/rewrite this sentence (on the one ARG used for branch GRM}
 %
@@ -693,18 +691,12 @@ However, there is a degree of variability in branch relatedness
 between different pairs of individuals with similar pedigree relatedness.
 %
 While branch relatedness broadly tracks the expected relatedness outlined above,
-the median relatedness varies around this value across the range of pedigree relatedness.
+it varies around this value across the range of pedigree relatedness.
 %
-Moreover, there is substantial variability in branch relatedness within a single pair of individuals.
+Moreover, there is substantial variability in branch relatedness across one chromosome
+for a pair of individuals.
 %
 This variability is highest for sibling pairs and decreases with pedigree relatedness.
-
-% Paragraph on summarising branch and ped relatedness
-Taken together, these results illustrate that, even in a fixed pedigree,
-there can be substantial variation in branch relatedness at one chromosome,
-and that the degree of variation varies with respect to pedigree relatedness.
-%
-We emphasize that these results are obtained from simulations of a single chromosome.
 %
 We expect the absolute variability to decrease when considering
 branch relatedness across the whole genome.
@@ -729,17 +721,21 @@ branch relatedness across the whole genome.
 
 % --- GRM computation ----------------------------------------------------
 
-\subsection{Efficient branch GRM-vector products}
+\subsection{Efficient branch GRM-vector products}\label{subsec:matvec}
+
 We now describe algorithms to compute the branch GRM, showing that it is 
 fundamentally a quadratic time operation. Many downstream applications, however,
 do not actually require the GRM itself, but instead use the product of the 
 GRM times somes vector. We provide a rigorous description of an efficient 
 algorithm for this task, and demonstrate that it has \emph{logarithmic} time complexity.
 We then provide an algorithm to compute branch PCA based on this GRM-vector
-product algorithm using a randomised SVD method, and illustrate its scalability
-via some simulation-based benchmarks.
-The algorithms described are implemented in 
+product using a randomized SVD method \citep{halko2011findingstructure},
+and illustrate its scalability
+via simulation-based benchmarks.
+The algorithms described are implemented in
 the \tskit{} library \citep{ralph2020efficiently, kelleher2024tskit}.
+
+% GG continue here
 
 \subsubsection{Computing branch GRM}
 As shown in Eq.~\eqref{eqn:divergence_relatedness_branch}, the branch GRM
@@ -805,7 +801,6 @@ is not directly comparable.)
 In the next section, however, we show that it is not necessary
 to compute the branch GRM explictly in order to \emph{use} it. For many 
 applications that use the GRM we can implicitly compute it without materialising the actual matrix.
-
 
 % and the \ARGneedlelib{} library implements the
 % mutation-dropping approach of \citet{zhang2023biobank}.
@@ -960,7 +955,6 @@ applications that use the GRM we can implicitly compute it without materialising
 % %
 % In other words, sending genetic values from above to below before the subtree change is redundant,
 % and not doing so when the subtree changes will pass the values to the wrong samples.
-
 
 Many calculations with GRMs involve matrix-vector products
 \citep{colleau2002indirect, colleau2017fast}. The obvious way to perform such a
@@ -1139,7 +1133,6 @@ the algorithm in \citet{ralph2020efficiently} to keep the weights up-to-date.
 % %
 % From this point of view, we can interpret $v(\cdot)$ as the sum of contributions that $n$ inherited from above,
 % but had not yet has been sent to the nodes and samples below in the previous trees.
-
 
 The analysis of this algorithm is straightforward and follows  a standard 
 pattern~\citep{kelleher2016efficient,ralph2020efficiently}. Because
