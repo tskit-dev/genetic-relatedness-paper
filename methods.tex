@@ -1214,6 +1214,15 @@ in \tskit{}, and extensively tested.
 % From this point of view, we can interpret $v(\cdot)$ as the sum of contributions that $n$ inherited from above,
 % but had not yet has been sent to the nodes and samples below in the previous trees.
 
+\begin{figure}
+    \centering
+    \includegraphics[width=5cm]{Figures/matvec-benchmark}
+    \caption{Computational scaling of the branch GRM-vector product algorithm
+    implemented in \tskit{} for subsets of a large simulation 
+    of French-Canadians.
+    \label{fig:matvec-benchmark}}
+\end{figure}
+
 The analysis of this algorithm is straightforward and follows  a standard 
 pattern~\citep{kelleher2016efficient,ralph2020efficiently}. Because
 recombination results in a small modification of the current tree,
@@ -1224,6 +1233,15 @@ a cost of $O(\log{n_S})$, assuming trees are balanced. Edge insertions
 in \textbf{V2} have the same cost. Thus, 
 as the first tree requires inserting $O(n_S)$ edges requiring $O(1)$
 work, the overall complexity is $O(n_S + n_T \log{n_S})$.
+This logarithmic time complexity is borne out in
+Fig.~\ref{fig:matvec-benchmark} where we plot the time taken to compute the 
+branch GRM vector product against subsets of a large simulated 
+ARG~\citep{andersontrocme2023genes}. Here, it takes only
+17.8 seconds to run the \texttt{genetic\_relatedness\_vector} method 
+for 1 million diploid samples. In contrast, computing the full branch
+GRM using the \texttt{genetic\_relatedness\_matrix} method 
+for \emph{twenty samples} required 28 seconds.
+
 
 % --- PCA ----------------------------------------------------------------
 
