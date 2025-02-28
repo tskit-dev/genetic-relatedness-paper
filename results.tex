@@ -77,10 +77,11 @@ to obtain an ARG within the pedigree.
 Second, it further samples chromosome inheritance through the assumed demographic model
 to recapitate the ARG from the first stage.
 %
-We elected to simulate a single, large chromosome - chromosome 3 - over the whole genome to reduce the overall computational cost of our study.
+We elected to simulate only the complete human chromosome 3 due to its large size
+while reducing the overall computational cost of our study.
 %
 To study the stochastic variation in recombination and coalescence events within the pedigree,
-we simulated 100 replicates of an ARG using different random seeds.
+we simulated 100 replicates of an ARG for the chromosome using different random seeds.
 %
 This approach allowed us to assess the variance in branch GRM
 while maintaining consistency with the underlying pedigree.
@@ -96,7 +97,6 @@ among the probands and then eigen-decomposed the GRM using
 For branch PCA, to avoid undue influence of large, low-recombination regions,
 we first remapped genomic coordinates from base pairs to genetic distance,
 using the HapMap II genetic map provided by \texttt{stdpopsim} \citep{adrion2020stdpopsim}.
-\todo[inline]{Should this have been done also for branch GRM? Pinging @Peter for this.}
 %
 We then used Algorithm~\algorithmref{rPCA} to compute the first six PCs.
 
@@ -154,7 +154,7 @@ using \scipy{} \citep{Virtanen2020SciPy} and \scikitallel{} \citep{Miles2024scik
 %
 \begin{itemize}
     \item Calculating branch GRM using \tsGRM{} followed by eigenanalysis using \eigh{} function from \scipy{}.
-    \item Eigenanalysis of branch GRM using \eigsh{} function from \scipy{} using the sparse matrix-vector product Algorithm~\algorithmref{bGRM-vec} as a linear operator.
+    \item Eigenanalysis of branch GRM using \eigsh{} function from \scipy{} using the implicit matrix-vector product Algorithm~\algorithmref{V} as a linear operator.
     \item Calculating genotype GRM using equation~\eqref{eqn:grm} followed by eigenanalysis using \eigh{} function from \scipy{}.
     \item Randomized PCA of genotype matrix using \texttt{randomized\_pca} function from \scikitallel{}.
 \end{itemize}

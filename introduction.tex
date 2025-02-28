@@ -117,7 +117,8 @@ scale the estimation of heritability and region-based association testing with b
 % --- GAP ---------------------------------------------------------------------
 
 % Paragraph on The gap
-The scalability of current ARG-based relatedness methods, however, is constrained by
+% JK: saying "exact" here to avoid criticism of misrepresenting ARG-GRM stuff
+The scalability of current exact ARG-based relatedness methods, however, is constrained by
 their need to generate and store the full branch GRM. As the GRM encodes all 
 pairwise relationships among $n$ samples, it requires at least $O(n^2)$
 time and space to compute. 
@@ -217,7 +218,7 @@ computing a branch GRM is
 % get the necessity later on, though). Feel free to change if people think
 % this will be confusing.
 $O(t n^2)$, where $t$ is the number of trees (or equivalently, number 
-of recombination breakpoints) in the ARG.
+of recombination breakpoints) in an ARG.
 We present an algorithm to compute the product of the branch GRM with
 an arbitrary vector, and show that it has 
 $O(n + t \log{n})$ time complexity and $O(n)$ space complexity.

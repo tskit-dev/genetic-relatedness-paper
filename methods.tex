@@ -722,7 +722,8 @@ branch relatedness across the whole genome.
 % --- GRM computation ----------------------------------------------------
 
 \subsection{Efficient branch GRM-vector products}\label{subsec:matvec}
-
+% JK: I think we can lose this roadmap. Leaving it with 
+% you Peter.
 We now describe algorithms to compute the branch GRM, showing that it is 
 fundamentally a quadratic time operation. Many downstream applications, however,
 do not actually require the GRM itself, but instead use the product of the 
@@ -730,7 +731,7 @@ GRM times somes vector. We provide a rigorous description of an efficient
 algorithm for this task without forming the branch GRM,
 and demonstrate that it has \emph{logarithmic} time complexity.
 We then provide an algorithm to compute branch PCA based on this implicit GRM-vector
-product used in the randomized SVD method \citep{halko2011findingstructure},
+product used in a randomized SVD method \citep{halko2011findingstructure},
 and illustrate its scalability
 via simulation-based benchmarks.
 The algorithms described are implemented in
@@ -740,12 +741,12 @@ the \tskit{} library \citep{ralph2020efficiently, kelleher2024tskit}.
 
 As shown in Eq.~\eqref{eqn:divergence_relatedness_branch},
 the branch GRM $\mathbf{B}$ is a 
-straightforward function of the more fundamental divergence matrix $D$.
+straightforward function of the more fundamental divergence matrix $\mathbf{D}$.
 The time complexity of computing the branch GRM is therefore the same as 
 the divergence matrix.
 The divergence matrix describes
 the total branch length separating all $n_S^2$ pairs of samples, such 
-that $D_{i,j} = 2t_u - t_i - t_j$ where $u$ is the MRCA of samples $i$ and $j$.
+that $\mathbf{D}_{i,j} = 2t_u - t_i - t_j$ where $u$ is the MRCA of samples $i$ and $j$.
 Because the output is a dense $n_S \times n_S$ matrix 
 and at a minimum we must create and fill in the entries of this matrix,
 the complexity of this operation is at least $O(n_S^2)$.
@@ -761,46 +762,53 @@ Incremental algorithms work well when we only need to consider the effects
 of inserting and removing edges on nodes that are \emph{ancestral to}
 a given node. To compute the divergence matrix, however, we need to keep track
 of when the MRCAs of each pair of samples change, and this requires 
-descending into the subtrees \emph{descending from} nodes affected by 
+traversing the subtrees \emph{descending from} nodes affected by 
 edges being inserted and removed. Removing (or inserting) an edge changes the MRCA of 
 all pairs between the set of samples descending from it 
 and those not descending from it. In worst case (removing an edge to the 
 root of a balanced binary tree with $n_S$ samples) this involves 
 $O(n_S^2)$ work per tree transition, and therefore the complexity of the 
-operation is $O(n_T n_S^2)$. 
+operation is $O(n_T n_S^2)$, where $n_T$ 
+is the number of trees along the genome.
 
-The naive approach to this problem 
+The na{\"i}ve approach to this problem 
 is to proceed tree-by-tree along the sequence,
 iterate over all $\binom{n_S}{2}$ pairs of samples, compute the 
-time to their MRCA, and update the corresponding element of $D$.
-MRCAs can be computed efficiently using (e.g.) the Schieber-Vishkin
+time to their MRCA, and update the corresponding element of $\mathbf{D}$.
+MRCAs can be computed efficiently using the Schieber-Vishkin
 algorithm \citep{Schieber1988On,knuth2011combinatorial}
 which provides the MRCA of two nodes in constant time
 after an $O(n_S)$ preprocessing step.
 The overall complexity is therefore $O(n_T n_S^2)$,
 as we need to perform $O(n_S^2)$ work for all $n_T$ trees.
 While this is the same complexity as the incremental approach outlined
-above, this ``naive'' approach is in practise much faster, and 
+above, this ``na{\"i}ve'' approach is in practise much faster, and 
 is therefore the implementation used in \tskit{} via the \tsGRM{} method.
-This is essentially the same algorithm as used in the 
-\eGRM{} package~\citet{fan2022genealogical}, although it is implemented in
-Python and does not use an efficient approach of bulk MRCA queries. 
-This approach therefore requires $O(n_T n_S^2 \log^2{n_S})$ time, 
+\eGRM{} package~\citet{fan2022genealogical} essentially uses the same approach,
+although implemented in Python and does not use efficient bulk MRCA queries.
+Their approach therefore requires $O(n_T n_S^2 \log^2{n_S})$ time, 
 as each MRCA query requires $O$(tree height) time, which is $\log n_S$
 if the trees are balanced~\citep{kelleher2016efficient}.
 Supplementary Fig~\ref{fig:SI_benchmarking} shows that the \tskit{} implementation 
-significantly outperforms the \eGRM{}
-implementation~\citep{fan2022genealogical}.
+is faster than the \eGRM{}
+implementation~\citep{fan2022genealogical},
+% I don't know why this is, but need to acknowledge
+although converging for larger sample sizes.
 
-The complexity of computing the branch GRM exactly is therefore $O(n_T n_S^2)$,
-which has significant implications for its utility in large-scale studies:
+The $O(n_T n_S^2)$ complexity of computing the branch GRM
+has significant implications for its utility in large-scale studies:
 quadratic algorithms are simply not feasible when we have millions 
-of samples. 
-(The approximate mutation-dropping approach of \citet{zhang2023biobank}
-is not directly comparable.)
-In the next section, however, we show that it is not necessary
-to compute the branch GRM explictly in order to \emph{use} it. For many 
-applications that use the GRM we can implicitly compute it without materialising the actual matrix.
+of samples.
+The approximate mutation-dropping approach of \citet{zhang2023biobank}
+is not directly comparable to \citet{fan2022genealogical} and our work.
+% JK: trying to distinguish methods here by exact-vs-approximate.
+However, their follow-up work with the randomized Haseman-Elston method \citep{zhu2024variance}
+indicates that there are scaleable computational approaches that can
+work with approximate branch GRMs.
+In the next section, we show that it is not necessary
+to compute the exact branch GRM explictly in order to \emph{use} it.
+For many applications that use the branch GRM we can implicitly compute with it
+without materialising the actual matrix.
 
 % and the \ARGneedlelib{} library implements the
 % mutation-dropping approach of \citet{zhang2023biobank}.
@@ -957,18 +965,18 @@ applications that use the GRM we can implicitly compute it without materialising
 % and not doing so when the subtree changes will pass the values to the wrong samples.
 
 Many calculations with GRMs involve matrix-vector products
-\citep{colleau2002indirect, colleau2017fast}. The obvious way to perform such a
-computation is to first compute the GRM, and to then compute its product with 
-the vector in question. This places some strong limits on the size of the 
-datasets that we can work with, however, as the time and space complexity 
-is quadratic in the number of samples, $n_S$. In certain situations, however, 
+\citep{colleau2002indirect, colleau2017fast}. The straightforward way is
+to first compute the GRM, and to then compute its product with 
+the vector in question. This places strong limits on the size of the 
+datasets that we can work with, due to quadratic space and time complexity
+in the number of samples, $n_S$. In certain situations, however, 
 given that the output of an $(n\times n)$-matrix times an $n$-vector is,
 itself an $n$-vector, we can perform this calculation without explicitly
 materialising the matrix, thus avoiding the quadratic space complexity.
 In rarer situations, we can even exploit the structure of the matrix to 
-avoid the quadratic \emph{time} complexity. Not only do we not fully
+also avoid the quadratic \emph{time} complexity. Not only do we not fully
 materialise the matrix in memory, we never actually compute all $n_S^2$
-elements of the matrix. In this section we develop an algorithm of the 
+elements of the matrix. Here, we develop an algorithm of the 
 latter form, which allows us to exactly compute the product of the 
 branch GRM with an arbitrary vector in substantially less time than
 it would take to compute the matrix itself.
@@ -1054,7 +1062,7 @@ so by accumulating values of haplotypes, we reduce the amount of necessary work.
 % but has not yet passed down to its descendants.
 % The algorithm looks simpler at a glance but requires a more careful read to understand.
 
-\begin{taocpalg}{V}{Branch relatedness matrix-vector product}
+\begin{taocpalg}{V}{Branch GRM-vector product}
 {
     Given a sequence of positions that are recombination breakpoints $b_k$ for $1 \le k \le K$ 
     along the genome and corresponding sequences of edges to 
@@ -1108,7 +1116,7 @@ so by accumulating values of haplotypes, we reduce the amount of necessary work.
 % The vast majority of readers aren't going to understand the simpler algorithm 
 % anyway, so no point in confusing them more.
 % % The algorithm
-% \begin{taocpalg}{bGRM-vec}{Branch GRM times a vector}
+% \begin{taocpalg}{bGRM-vec}{Branch GRM-vector}
 % {
 %     Given a sequence of positions that are recombination breakpoints $b_k$ for $1 \le k \le K$
 %     along the genome and corresponding sequences of edges to remove ($R_k$) and add ($A_k$) at each position,
@@ -1167,7 +1175,7 @@ so by accumulating values of haplotypes, we reduce the amount of necessary work.
 
 % \end{taocpalg}
 
-Algorithm V follows a similar structure to previous incremental 
+Algorithm~\algorithmref{V} follows a similar structure to previous incremental 
 algorithms~\citep{kelleher2016efficient,ralph2020efficiently}:
 at each tree transition we update some global state to account for the 
 insertion and removal of the edges affected. Here, the overall 
@@ -1190,10 +1198,10 @@ contribution passed down to the child node of the edge $c$.
 Finally, we set $x(c)$ is set to $b_k$ (the current position) to mark
 the last position this node was updated.
 
-The above explanation is a rough sketch of how the algorithm works;
-a full proof of correctness is provided in Appendix~\ref{sec:proof-algv-correct}.
-The algorithm has been implemented in the \texttt{genetic\_relatedness\_vector}
-in \tskit{}, and extensively tested.
+The above explanation is a rough sketch of the algorithm.
+A full proof of correctness is provided in Appendix~\ref{sec:proof-algv-correct}.
+The algorithm has been implemented in the \tsGRMv{} % \texttt{ts.genetic\_relatedness\_vector}
+in \tskit{}, and is extensively tested.
 
 % After passing down $v(n)$, it is set to $0$ and $x(n)$ is set to $b_k$ (the current position).
 % Then, $v(n)$ repeats to accumulate the contributions from above, including itself,
@@ -1223,87 +1231,94 @@ in \tskit{}, and extensively tested.
     \label{fig:matvec-benchmark}}
 \end{figure}
 
-The analysis of this algorithm is straightforward and follows  a standard 
+The analysis of this algorithm is straightforward and follows a standard 
 pattern~\citep{kelleher2016efficient,ralph2020efficiently}. Because
 recombination results in a small modification of the current tree,
 each tree transition
-incurs $O(1)$ edge removals and insertions . Each edge removal in step \textbf{V1}
+incurs $O(1)$ edge removals and insertions. Each edge removal in step \textbf{V1}
 involves examining only nodes ancestral to the edge, and therefore incurs
 a cost of $O(\log{n_S})$, assuming trees are balanced. Edge insertions
 in \textbf{V2} have the same cost. Thus, 
 as the first tree requires inserting $O(n_S)$ edges requiring $O(1)$
 work, the overall complexity is $O(n_S + n_T \log{n_S})$.
 This logarithmic time complexity is borne out in
-Fig.~\ref{fig:matvec-benchmark} where we plot the time taken to compute the 
-branch GRM vector product against subsets of a large simulated 
+Figure~\ref{fig:matvec-benchmark} where we plot the time taken to compute the 
+branch GRM-vector product against subsets of a large simulated
 ARG~\citep{andersontrocme2023genes}. Here, it takes only
-17.8 seconds to run the \texttt{genetic\_relatedness\_vector} method 
-for 1 million diploid samples. In contrast, computing the full branch
-GRM using the \texttt{genetic\_relatedness\_matrix} method 
-for \emph{twenty samples} required 28 seconds.
-
+17.8 seconds to run the \tsGRMv{} method 
+on the ARG with 1 million diploid samples
+(6,694,080 nodes; 31,840,754 edges; 4,013,273 trees).
+In contrast, computing the full branch
+GRM using the \tsGRM{} method 
+for the ARG with ten diploid samples
+% This is too slow - I think the implementation could be improved quite a lot
+% by minimising the oriented forest we pass to the SV algorithm. We're currently
+% passing the full 61K nodes in, resulting in a lot of memory getting shuttled
+% around.
+(61,412 nodes;  297,171 edges; 93,543 trees) required 28 seconds.
 
 % --- PCA ----------------------------------------------------------------
 
 \subsubsection{Branch PCA}
 
 We found the principal components (PCs) of the branch GRM
-using a randomized singular value decomposition \citep{halko2011findingstructure},
+using a randomized SVD \citep{halko2011findingstructure},
 a method that can find the
 eigenvectors of a matrix that is only implicitly defined through a matrix-vector multiplication.
 Algorithm~\algorithmref{rPCA} explains this process.
 
 \begin{taocpalg}{rPCA}{Randomized PCA of branch GRM}
 {
-    Let $\mathbf{G}$ be the branch GRM for $n_I$ individuals,
+    Let $\mathbf{C}$ be the branch GRM for $n_I$ individuals,
     let $k$ be the desired number of PCs, and $q$ the number of iterations.
-    Multiplying $\mathbf{G}$ with a vector is done by Algorithm~\algorithmref{\textbf{bGRM-vec}}.
+    Multiplying $\mathbf{C}$ with a vector is done by Algorithm~\algorithmref{\textbf{V}}.
 }
-
+    
 \algstep{P1.}{Range estimation}{
     Sample a random matrix $\boldsymbol{\Omega} \in \mathbb{R}^{n_I \times k}$ in which the entries are independent standard normal variables.
-    Obtain a basis matrix $\mathbf{Q} \in \mathbb{R}^{n_I \times k}$ by applying QR decomposition to $\mathbf{G}\boldsymbol{\Omega}$.
+    Obtain a basis matrix $\mathbf{Q} \in \mathbb{R}^{n_I \times k}$ by applying QR decomposition to $\mathbf{C}\boldsymbol{\Omega}$.
     Repeat $q$ times, updating the basis matrix $\mathbf{Q}$
-    by applying QR decomposition to $\mathbf{G}\mathbf{Q}$,
+    by applying QR decomposition to $\mathbf{C}\mathbf{Q}$,
     where $\mathbf{Q}$ is from the previous iteration.
 }
 
 \algstep{P2.}{Small singular value decomposition}{
-    Compute $\mathbf{W} = \mathbf{Q}^\intercal \mathbf{G}$ and obtain
+    Compute $\mathbf{W} = \mathbf{Q}^\intercal \mathbf{C}$ and obtain
     the singular vector $\mathbf{U} \in \mathbb{R}^{k \times k}$
     by exact singular value decomposition of $\mathbf{W}$.
     Then the columns of $\mathbf{Q}\mathbf{U} \in \mathbb{R}^{n \times k}$
-    contain the desired PCs of the branch GRM $\mathbf{G}$.
+    contain the desired PCs of the branch GRM $\mathbf{C}$.
 }
 
-The algorithm has two advantages over directly applying the exact singular value decomposition to the full matrix.
+\end{taocpalg}
+
+The algorithm has two advantages over directly applying the exact SVD to the branch GRM.
 %
 It needs less time and memory because the $n_I \times n_I$ branch GRM is never computed nor stored.
 %
 The algorithm extracts the relevant information through
-the efficient matrix-vector product Algorithm~\algorithmref{bGRM-vec}.
+the efficient matrix-vector product Algorithm~\algorithmref{V}.
 %
-Secondly, the exact singular value decomposition is applied to an $n_I \times k$ matrix,
+Secondly, the exact SVD is applied to an $n_I \times k$ matrix,
 where $k$ is much smaller than $n_I$.
 %
 This reduces the amount of computation considerably.
 
-\end{taocpalg}
-
-
 \begin{figure}
     \centering
     \includegraphics[width=\textwidth]{Figures/Fig2_benchmarking_plot.png}
-    \label{fig:benchmarking}
     \caption{Time efficiency of different implementations of PCA computations.
     Each dot corresponds to the average time taken across ten simulations with different random seeds.
     Error bars represent the range in time taken across the ten simulations.
     (A) PCA with genome sequence length fixed at $10^{7}$ and varying the number of samples.
     (B) PCA with number of sample nodes fixed at $2^{10}$ and varying genome sequence length.
-    Branch mode refers to branch PCA and site mode refers to genotype PCA.}
+    Branch mode refers to branch PCA and site mode refers to genotype PCA.
+    \label{fig:benchmarking}}
 \end{figure}
 
-The efficiency of the branch-PCA algorithm (and the underlying GRM-vector multiplication algorithm is illustrated in Fig~\ref{fig:benchmarking}. 
+The efficiency of the branch PCA algorithm
+and the underlying branch GRM-vector product algorithm is illustrated in
+Figure~\ref{fig:benchmarking}. 
 See Methods for details of the benchmarking methodology.
 % Paragraph on PCA benchmark times
 For PCA, we observed significant benefits from using implementations that avoided the storage of the GRM or genotype matrix in memory,
@@ -1312,15 +1327,14 @@ particularly for larger numbers of samples (Figure~\ref{fig:benchmarking}).
 Notably, \tsGRM{} failed due to memory limits
 when computing the branch GRM for $2^{12} = 4096$ sample nodes and
 when computing the genotype (site) GRM for $2^{14} = 16384$ sample nodes.
-%\todo[inline]{We should mention in M\&M that \tsGRM{} can do site version too! or just somewhere (discussion - but say that we ideally want to work with branches!?)}
 %
-Implementation of randomised PCA on genotype matrix in \scikitallel{}
+Implementation of randomized PCA on genotype matrix in \scikitallel{}
 failed due to memory limits for $2^{16} = 65536$ sample nodes.
 %
 Notwithstanding, the implementations that relied solely on
-direct matrix-vector computations using \tskit{} were substantially more efficient.
+the implicit matrix-vector product using \tskit{} were substantially more efficient.
 %
-Specifically, both \tsPCA{} and \eigsh{} from \scipy{} using \tsGRw{}
+Specifically, both \tsPCA{} and \eigsh{} from \scipy{} using \tsGRMv{} % not \tsGRMw{}!?
 as a linear operator were able to scale to $2^{20} = 1,048,576$ samples.
 %
 The native implementation of \tsPCA{} consistently outperformed \eigsh{},
@@ -1336,4 +1350,5 @@ while \eigsh{} took
 119.7s for $2^{20} = 1,048,576$ samples.
 %
 This difference primarily reflects the differences in the underlying algorithms used for PCA:
-\tsPCA{} uses a randomised singular value decomposition while \eigsh{} uses the implicitly restarted Lanczos method \citep{lehoucq1998arpack}.
+\tsPCA{} uses a randomized SVD while
+\eigsh{} uses the implicitly restarted Lanczos method \citep{lehoucq1998arpack}.
