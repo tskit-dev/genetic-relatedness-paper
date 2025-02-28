@@ -2,7 +2,7 @@
 % --- BRIEF INTRO -------------------------------------------------------------
 
 % Paragraph on Background
-Relatedness is one of the central concepts in genetics.
+Relatedness is a fundamental concept in genetics.
 %
 In its most general sense, genetic relatedness refers to the notion of
 similarity between individuals' genomes.
@@ -47,12 +47,13 @@ the various concepts of relatedness.
 %
 Although ARGs are not directly observable,
 there has been significant recent progress in inferring ARGs from a sample of DNA sequences
-\citep{speidel2019method, kelleher2019inferring, zhang2023biobank, deng2024robust, gunnarsson2024scalable}.
+\citep{rasmussen2014genome,speidel2019method, kelleher2019inferring, zhang2023biobank, deng2024robust, gunnarsson2024scalable}.
 %
 This has been accompanied by computational advances that enable
 the highly efficient storage and processing of ARGs
 \citep{kelleher2016efficient, zhu2024variance, dehaas2024enabling};
-in this paper we make use of the \textit{succinct tree sequence} encoding
+in this paper we make use of the \textit{succinct tree sequence} 
+ARG encoding
 \citep{ralph2020efficiently, wong2023general}
 made available through the \tskit{} library.
 
@@ -82,7 +83,10 @@ quantity (e.g., pedigree relatedness is the expected genetic identity within a p
 We therefore use the more precise terms 
 ``branch relatedness'' and ``branch GRM'' 
 rather than previously proposed ``eGRM'' or ``ARG-GRM'' 
-to avoid confusion (see Methods for more discussion).
+to avoid confusion.
+% JK I don't think we are discussing this any more, and even if we did I'm not sure
+% there's much to discuss?
+% (see Methods for more discussion).
 
 % Paragraph on Uses of branch GRM
 Recent applications of these methods have highlighted the advantages of
@@ -104,11 +108,48 @@ than association analysis on SNP array genotypes imputed to whole-genome sequenc
 to find DNA segments that are identical-by-descent (IBD) for pairs of individuals in a given ARG and
 then summarise these outputs, possibly as an ``IBD GRM'',
 which provides an ARG-based analogue to the pedigree GRM.
+% JK: We should be citing the Tree-based QTL paper here also
+% https://www.cell.com/ajhg/fulltext/S0002-9297(23)00395-6
 
 % --- GAP ---------------------------------------------------------------------
 
 % Paragraph on The gap
-The scalability of current ARG-based relatedness methods is constrained by their need to store the full branch GRM in memory, limiting downstream analyses such as principal component analysis (PCA) to datasets of 10,000 to 100,000 individuals, depending on available computational resources. However, many of these analyses can be performed using linear algebra techniques that rely solely on matrix-vector operations. That is, these algorithms require only the product of the matrix with an arbitrary vector, eliminating the need to store the full matrix. Efficient algorithms for computing such matrix-vector products can therefore significantly enhance the scalability of downstream analyses. \todo[inline]{Add a bit more specificity around how PCA can be performed using matrix-vector operations, or examples of other downstream tasks that can be done with matrix-vector operations?}
+The scalability of current ARG-based relatedness methods, however, is constrained by
+their need generate and store the full branch GRM. As the GRM encodes all 
+pairwise relationships among $n$ samples, it requires at least $O(n^2)$
+time and space to compute. 
+Several human datasets, currently available and of core interest for these 
+methods, consist of hundreds of thousands of 
+samples~\citep{caulfield2017national,turnbull2018100,
+bycroft2018genome,backman2021exome,halldorsson2022sequences,uk2023whole,
+all2024genomic}
+and genomic datasets with millions of samples will soon be 
+available~\citep{stark2024call,cook2025our}.
+At this scale, algorithms with quadratic time and space complexity are simply
+not feasible, and there is a pressing need for more efficient approaches.
+It is important to note, however, that the GRM itself is often not the goal;
+rather, we are usually interested in what we can do \emph{with} the GRM.
+Applications such as principal component analysis (PCA), for example, are
+defined in terms of core linear algebra operations performed on the GRM,
+and the outputs are of much smaller dimension. Given that all the information
+in a GRM is encoded in an ARG, there is the possibility that we can bypass
+generating large intermediate matrices and instead compute the quantities
+of interest directly.
+
+% to store the full branch GRM in memory, limiting downstream analyses
+% such as principal component analysis (PCA) to datasets of 10,000 to 100,000
+% individuals, depending on available computational resources. However, many of
+% these analyses can be performed using linear algebra techniques that rely
+% solely on matrix-vector operations. That is, these algorithms require only the
+% product of the matrix with an arbitrary vector, eliminating the need to store
+% the full matrix. 
+
+% Efficient algorithms for computing such matrix-vector products
+% can therefore significantly enhance the scalability of downstream analyses.
+% \todo[inline]{Add a bit more specificity around how PCA can be performed using
+% matrix-vector operations, or examples of other downstream tasks that can be
+% done with matrix-vector operations?}
+
 %
 %Operationally, \citet{fan2022genealogical} shifted the estimation of relatedness from summing over loci of a genotype matrix and for each locus evaluating genotype similarity between samples (for genotype GRM) to summing over local trees of an ARG and for each local tree evaluating time between samples' MRCA and the root (for branch GRM).
 %
@@ -134,8 +175,8 @@ for simulated data from a real pedigree of the French-Canadian population of
 \citet{andersontrocme2023genes},
 illustrating the variability of the branch GRM within a fixed pedigree.
 %
-We describe a procedure to compute the entire branch GRM by efficiently computing TMRCAs
-using the Schieber-Vishkin algorithm \citep{Schieber1988On}.
+% We describe a procedure to compute the entire branch GRM by efficiently computing TMRCAs
+% using the Schieber-Vishkin algorithm \citep{Schieber1988On}.
 %
 We also develop a new algorithm to perform efficient branch GRM-vector product,
 which avoids storing the full branch GRM in memory.
