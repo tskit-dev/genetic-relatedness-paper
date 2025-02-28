@@ -530,7 +530,7 @@ and operates directly on tree sequence encoding of an ARG.
 However, we first connect and demonstrate pedigree and branch relatedness.
 
 \subsection{Connection between pedigree and branch relatedness}
-% JK: trying to rearrange this into a narrative leading to the FC example below
+
 The pedigree relatedness of two individuals in a given pedigree is
 the probability that they both inherit from the same ancestral genomes within the pedigree,
 that is, that they are IBD within the pedigree \citep{malecot1969mathemathics}.
@@ -727,17 +727,17 @@ We now describe algorithms to compute the branch GRM, showing that it is
 fundamentally a quadratic time operation. Many downstream applications, however,
 do not actually require the GRM itself, but instead use the product of the 
 GRM times somes vector. We provide a rigorous description of an efficient 
-algorithm for this task, and demonstrate that it has \emph{logarithmic} time complexity.
-We then provide an algorithm to compute branch PCA based on this GRM-vector
-product using a randomized SVD method \citep{halko2011findingstructure},
+algorithm for this task without forming the branch GRM,
+and demonstrate that it has \emph{logarithmic} time complexity.
+We then provide an algorithm to compute branch PCA based on this implicit GRM-vector
+product used in the randomized SVD method \citep{halko2011findingstructure},
 and illustrate its scalability
 via simulation-based benchmarks.
 The algorithms described are implemented in
 the \tskit{} library \citep{ralph2020efficiently, kelleher2024tskit}.
 
-% GG continue here
-
 \subsubsection{Computing branch GRM}
+
 As shown in Eq.~\eqref{eqn:divergence_relatedness_branch}, the branch GRM
 $\mathbf{B}$ is a 
 straightforward function of the more fundamental divergence matrix $D$.

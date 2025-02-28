@@ -2,15 +2,18 @@ Genetic relatedness is a central concept in genetics,
 underpinning studies of population and quantitative genetics in human, animal, and plant settings.
 %
 It is typically stored as a genetic relatedness matrix (GRM),
-whose elements are the pairwise relatedness values between individuals.
+whose elements are pairwise relatedness values between individuals.
 %
-Beyond classical GRMs based on pedigree, genotype, phylogeny, and coalescent times,
-recent work has used GRMs based on an ancestral recombination graph (ARG).
+This relatedness has been defined in various contexts
+based on pedigree, genotype, phylogeny, coalescent times,
+and, recently, ancestral recombination graph (ARG).
 %
-The ARG-based GRMs were found to better capture the structure of a population and
-improve association studies relative to the genotype GRM.
+% The ARG-based GRMs were found to better capture the structure of a population and
+% improve association studies relative to the genotype GRM.
 %
-Here, we unify the different definition of relatedness via the trait-centric perspective, which naturally leverages branch information in an ARG and provides a definition of branch relatedness and corresponding branch GRM.
+Here, we discuss the different definitions of relatedness in a unifying context,
+making use of the additive model of a quantitative trait
+to provide a definition of ``branch relatedness'' and the corresponding branch GRM.
 %
 We explore the relationship between branch relatedness and pedigree relatedness through a case study of French-Canadian individuals that have a known pedigree.
 %
@@ -19,8 +22,8 @@ Through the tree sequence encoding of an ARG, we then derive an efficient algori
 This algorithm leverages the sparse encoding of genomes with the tree sequence and hence enables large-scale computations with the branch GRM.
 %
 We demonstrate the power of this algorithm by developing
-a randomized principal components algorithm on tree sequence
-that enables the analysis of millions of genomes.
+a randomized principal components algorithm for tree sequences
+that easily scales to millions of genomes.
 %
 All algorithms are implemented in the open source \tskit{} Python package.
 %
