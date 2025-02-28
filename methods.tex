@@ -1035,56 +1035,49 @@ all other nodes are the roots of unchanged subtrees and hence remains unchanged.
 As seen above, each branch contributes to potentially many entries in the output vector,
 so by accumulating values of haplotypes, we reduce the amount of necessary work.
 
-% The algorithm
-\begin{taocpalg}{bGRM-vec}{Branch GRM times a vector}
+
+% The algorithm that is used in practice is a modification of the one that we presented in the main paragraphs.
+% $v(n)$ does not retain its previous interpretation of values that $n$ has inherited from its ancestors
+% but has not yet passed down to its descendants.
+% The algorithm looks simpler at a glance but requires a more careful read to understand.
+
+\begin{taocpalg}{V}{Branch relatedness matrix-vector product}
 {
-    Given a sequence of positions that are recombination breakpoints $b_k$ for $1 \le k \le K$
-    along the genome and corresponding sequences of edges to remove ($R_k$) and add ($A_k$) at each position,
-    compute the values
-    $y_s=\sum_t\mathbf{C}_{st} w_t$ for $1 \le s \le n_S$, as long as all samples are leaves in all trees.
-    %
+    Given a sequence of positions that are recombination breakpoints $b_k$ for $1 \le k \le K$ 
+    along the genome and corresponding sequences of edges to 
+    remove ($R_k$) and add ($A_k$) at each position, 
+    compute the values 
+    $y_s=\sum_t\mathbf{C}_{st} w_t$ for $1 \le s \le n_S$, assuming all samples are leaves in all trees.
     Let $T$ be the current tree,
     $\ell_T(n) = t_{p(n)} - t_n$ be the length of the branch above $n$ in $T$ (or zero, if $n$ has no parent),
     initialize $k = 1$, $x(n) = 0$, and $v(n) = 0$ for all $n \in \mathbf{V}$.
     Set $w(s) = w_s$ for each sample $s$, and $w(n)=0$ for all other nodes.
-    At all times, define
+    At all times, define 
     $z(n) = \ell_{T_k}(n) (b_k - x(n)) $ where $T_k$ is the current tree.
 }
 
 \algstep{V1.}{Remove edges}{
     For each edge $(c, p) \in R_k$,
-    identify the path from $p$ to the root.
-    Move from the root to $p$ along the path.
-    For each $n$ on the path,
-    $v(n) \pluseq z(n)w(n)$ and
-    $x(n)=b_k$.
-    Then,
-    $v(d) \pluseq v(n)$ for all children $d$ of $n$ and
-    $v(n)=0$.
-    Then,
-    $v(c) \pluseq z(c)w(c)$ and set $x(c)=b_k$.
-    Move from $p$ to the root along the path.
-    For each $n$ on the path,
-    $w(n) \minuseq w(c)$.
-    Finally, remove the edge.
+    and for each node $n \ge_T p$,
+    set $v(n) \pluseq z(n)w(n)$,
+    then
+    $w(n) \minuseq w(c)$, 
+    $v(c) \pluseq v(n)$,
+    and $x(n) = b_k$.
+    Then, set $x(c) = b_k$
+    and remove the edge.
 }
 
 \algstep{V2.}{Add edges}{
     For each edge $(c, p) \in A_k$,
-    identify the path from $p$ to the root.
-    Move from the root to $p$ along the path.
-    For each $n$ on the path,
-    $v(n) \pluseq z(n)w(n)$ and
-    $x(n)=b_k$.
-    Then,
-    $v(d) \pluseq v(n)$ for all children $d$ of $n$ and
-    $v(n)=0$.
-    Then,
-    $x(c)=b_k$.
-    Move from $p$ to the root along the path.
-    For each $n$ on the path,
-    $w(n) \pluseq w(c)$.
-    Finally, add the edge.
+    and for each node $n \ge_T p$,
+    set $v(n) \pluseq z(n)w(n)$,
+    then
+    $w(n) \pluseq w(c)$,
+    $v(c) \minuseq v(n)$,
+    and $x(n) = b_k$.
+    Then, set $x(c) = b_k$
+    and add the edge.
 }
 
 \algstep{V3.}{Iteration}{
@@ -1094,6 +1087,70 @@ so by accumulating values of haplotypes, we reduce the amount of necessary work.
 }
 
 \end{taocpalg}
+
+% The simplified algorithm; this was moved in here to give us less to explain
+% and fewer opportunities to confuse readers as to what we're doing.
+% The vast majority of readers aren't going to understand the simpler algorithm 
+% anyway, so no point in confusing them more.
+% % The algorithm
+% \begin{taocpalg}{bGRM-vec}{Branch GRM times a vector}
+% {
+%     Given a sequence of positions that are recombination breakpoints $b_k$ for $1 \le k \le K$
+%     along the genome and corresponding sequences of edges to remove ($R_k$) and add ($A_k$) at each position,
+%     compute the values
+%     $y_s=\sum_t\mathbf{C}_{st} w_t$ for $1 \le s \le n_S$, as long as all samples are leaves in all trees.
+%     %
+%     Let $T$ be the current tree,
+%     $\ell_T(n) = t_{p(n)} - t_n$ be the length of the branch above $n$ in $T$ (or zero, if $n$ has no parent),
+%     initialize $k = 1$, $x(n) = 0$, and $v(n) = 0$ for all $n \in \mathbf{V}$.
+%     Set $w(s) = w_s$ for each sample $s$, and $w(n)=0$ for all other nodes.
+%     At all times, define
+%     $z(n) = \ell_{T_k}(n) (b_k - x(n)) $ where $T_k$ is the current tree.
+% }
+
+% \algstep{V1.}{Remove edges}{
+%     For each edge $(c, p) \in R_k$,
+%     identify the path from $p$ to the root.
+%     Move from the root to $p$ along the path.
+%     For each $n$ on the path,
+%     $v(n) \pluseq z(n)w(n)$ and
+%     $x(n)=b_k$.
+%     Then,
+%     $v(d) \pluseq v(n)$ for all children $d$ of $n$ and
+%     $v(n)=0$.
+%     Then,
+%     $v(c) \pluseq z(c)w(c)$ and set $x(c)=b_k$.
+%     Move from $p$ to the root along the path.
+%     For each $n$ on the path,
+%     $w(n) \minuseq w(c)$.
+%     Finally, remove the edge.
+% }
+
+% \algstep{V2.}{Add edges}{
+%     For each edge $(c, p) \in A_k$,
+%     identify the path from $p$ to the root.
+%     Move from the root to $p$ along the path.
+%     For each $n$ on the path,
+%     $v(n) \pluseq z(n)w(n)$ and
+%     $x(n)=b_k$.
+%     Then,
+%     $v(d) \pluseq v(n)$ for all children $d$ of $n$ and
+%     $v(n)=0$.
+%     Then,
+%     $x(c)=b_k$.
+%     Move from $p$ to the root along the path.
+%     For each $n$ on the path,
+%     $w(n) \pluseq w(c)$.
+%     Finally, add the edge.
+% }
+
+% \algstep{V3.}{Iteration}{
+%     If $k < N$,
+%     set $k = k + 1$ and return to \algorithmref{\textbf{V1}}.
+%     Otherwise, set $y_s = v(s)$ for $1 \le s \le n_S$ and finish.
+% }
+
+% \end{taocpalg}
 
 % Paragraph on describing the matvec algorithm
 We can see from equation~\eqref{eq:similar_ralph2020} that $\mathbf{C}\mathbf{w}$ is

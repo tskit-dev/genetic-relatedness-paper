@@ -58,16 +58,155 @@
 \bibliography{references}
 
 \clearpage
+% \section*{Appendix}
+
+\appendix
+
+\input{history}
+
+
+\setcounter{table}{0}
+\setcounter{figure}{0}
+\renewcommand{\thetable}{A\arabic{table}}
+\renewcommand{\thefigure}{A\arabic{figure}}
+
+\section{Proof of correctness of Algorithm V}\label{sec-proof-algv-correct}
+
+Here we prove that when Algorithm V completes, $v(s)$ is equal to the
+$s^{\text{th}}$ entry of $\mathbf{C}\mathbf{w}$, as defined
+in~\eqref{eq:similar_ralph2020}.
+In fact, after each step in the algorithm (i.e., after each addition or removal of an edge), 
+it is true that for \textit{every} node $n$, the sum of everything above that node is equal to the weighted sum of covariances
+for that node including everything up to that point in the genome.
+In other words, for every $n$,
+\begin{align} \label{eqn:matvec_consistent}
+    S_T(n):=
+    \sum_{r \ge_T n} v(r) + z(r)w(r) 
+    = 
+    \sum_{h:h \le k} (b_h-b_{h-1}) \sum_{r:n \le_{T_h} r} \ell_{T_h}(r) \sum_{t: t \le_{T_h} r} w_t
+\end{align}
+where $T$ is the current tree.
+This statement reduces to our claim that the algorithm is correct because
+the final tree is an ``empty'' tree with no edges,
+so at the end of the algorithm, the left-hand side is simply $v(n)+z(n)$.
+This is again $v(n)$ because $z(n)$ is zero due to $x(n)=b_K$.
+The right-hand side is equal to equation 
+(\ref{eq:similar_ralph2020}) when $n$ is a sample node.
+
+Each time we add an edge with child $c$ and parent $p$ to the tree (step V2), 
+we add the value of $w(n)$ to $p$ and all nodes above $p$ in the tree;
+when removing edges we subtract (step V1).
+Since $w(n)$ is initialized so that each sample $s$ carries $w_s$, this ensures that $w(n)= \sum_{s \le n} w_s$ at all times [as in \cite{kelleher2016efficient, ralph2020efficiently}].
+
+We prove that equation  (\ref{eqn:matvec_consistent}) is always true by induction.
+At the first (empty) tree, this is certainly true,
+as both sides are equal to zero.
+We now consider \textbf{Step V3}. 
+Tree $T$ and the bookkeeping variables $v$, $w$ and $x$ are left constant.
+Advancing the position from $k$ to $k+1$ only changes 
+$z(s)=\ell_T(s) (b_k - x(s))$ to 
+$z'(s)=\ell_{T'}(s) (b_{k+1} - x(s))$.
+Therefore, the appended value to the left-hand side is
+\begin{align}
+    \sum_{r: n \le_T r}z'(r)w(r) - z(r)w(r) = (b_{k+1}-b_{k})
+    \sum_{r: n \le_T r} \ell_T(r) w(r)
+\end{align}
+which is also equal to the added value to the right-hand side.
+Note that this is the only step that changes the value of equation (\ref{eqn:matvec_consistent}).
+
+\textbf{Step V1} and \textbf{V2} leave the value of both sides unchanged.
+Without the loss of generality, we prove this for \textbf{V2}.
+Suppose that we added edge $(c,p)$ where $c$ and $p$ are the child and the parent nodes of the edge, respectively.
+We can divide the nodes of $\nodes$ into four categories as (1) the child node $c$, (2) nodes below $c$,  (3) the parent node $p$ and nodes above $p$, and (4) all other nodes. 
+The insertion changes the values of the intermediate arrays to $v'$, $w'$, $z'$, and $x'$ following \textbf{V2}.
+We denote the new tree resulting from the insertion as $T'$.
+
+Observe that the difference in the left-hand side after $\mathbf{V2}$ is
+\begin{align}
+    \begin{aligned}
+        &\sum_{r:n \le_{T'} r} v'(r) + z'(r)w'(r) 
+        - \sum_{r:n \le_{T} r} v(r) + z(r)w(r)
+        \\
+        &= \sum_{r: n\le_{T'}r, n \nleq_T r } v'(r) + z'(r)w'(r) \\
+        &+ \sum_{r: n \le_{T'} r, n\le_T r} v'(r)+z'(r)w'(r)-v(r)-z(r)w(r) \\
+        &- \sum_{r: n \nleq_{T'} r, n\le_T r} v(r) + z(r)w(r) \\
+        &=  \sum_{r: n\le_{T'}r, n \nleq_T r } v'(r) + z'(r)w'(r)\\
+        &+ \sum_{r: n\le_T r} v'(r)+z'(r)w'(r)-v(r)-z(r)w(r)
+    \end{aligned}
+    \label{preserve_split}
+\end{align}
+for node $n$.
+The last line follows from $\{r: n \le_T r \} \subset \{r: n\le_{T'} r\}$ because $T'$ has more edges than $T$.
+Nodes in each category have distinct values for the former and the latter sum of this equation.
+
+The set $\{r: n \le_{T'} r, n \nleq_T r\}$ of the first summation is
+\begin{align}
+    \begin{cases}
+         \{r: p \le_{T'} r\} & \quad \text{$n$ in category (1) or (2)} \\
+        \emptyset & \quad \text{$n$ in category (3) or (4)}
+    \end{cases}
+\end{align}
+This is because $p$ and the nodes above $p$ are the nodes that were previously not ancestors in $T$, but became ancestors of $c$ and those below $c$ after the addition of the new edge.
+The set is empty for the nodes in the third and the fourth category because their ancestor nodes are unchanged after edge insertion.
+Therefore, the first summation is
+\begin{align}
+    \begin{cases}
+        \sum_{r: p \le_{T'} r} v'(r) + z'(r)w'(r) & \quad \text{$n$ in category (1) or (2)} \\
+        0 & \quad \text{$n$ in category (3) or (4)}
+    \end{cases}
+\end{align}
+
+The summand of the second summation $v'(r) + z'(r) - v(r) - z(r)$ is
+\begin{align}
+    \begin{cases}
+    v'(c) - v(c) & \quad \text{$r$ in category (1)} \\
+    0 & \quad  \text{$r$ in category (2), (3), or (4)}
+    \end{cases} 
+\end{align}
+For $r=c$ ($r$ is in the first category), it follows from $z(c)=0$ due to $\ell_T(c)=0$ and $z'(c)=0$ due to $x'(c)=b_k$.
+All the bookkeeping values of the second and the fourth category is unchanged by \textbf{V2}, so the summand is trivially zero.
+When $r=p$ ($r$ belongs to the third category), $v'(r) = v(r) + z(r)w(r)$  and $z'(r)=0$ by the operations $v(r) \pluseq z(r)w(r)$ and $x(r)=b_k$ by \textbf{V2}.
+Hence, the second summation is
+\begin{align}
+    \begin{cases}
+        v'(c) - v(c) & \quad \text{$n$ in category (1) or (2)} \\
+        0 & \quad \text{$n$ in category (3) or (4)}
+    \end{cases}
+\end{align}
+because the set $\{r: n \le_T r\}$ contains $c$ if and only if $n$ belongs to either the third or the fourth category.
+An expression for $v'(c)-v(c)$ comes from the operation $v(c) \minuseq v(r)$ following $v(r) \pluseq z(r)w(r)$ of \textbf{V2}
+\begin{align}
+    v'(c) - v(c) = - \sum_{r: p \le_{T} r} v(r) + z(r)w(r)
+\end{align}
+
+Combining the aforementioned results, we see that equation (\ref{preserve_split}) is 
+\begin{align}
+    \begin{cases}
+        \sum_{r: p \le_{T'} r} v'(r) + z'(r)w'(r) - \sum_{r: p \le_{T} r} v(r) + z(r)w(r) & \text{$n$ $\in$ (1) or (2)} \\
+        0 & \text{$n$ $\in$ (3) or (4)}
+    \end{cases} 
+\end{align}
+Both cases reduces to zero because the set of nodes ancestral to $p$ are the same in $T$ and $T'$ ($\{r: p \le_T r\}=\{r: p \le_{T'} r\}$), 
+ and $v'(r) = v(r) + z(r)w(r)$ for these nodes due to \textbf{V2} and $z'(r)=0$. 
+
+The right-hand side remains the same because the operation changes nothing in its expression:
+it's the working sum until the previous local tree that it does not contain any of 
+the components of the current tree that is being modified.
+This completes the proof.
+
+% It is unclear what $v(\cdot)$ means intuitively in this version of the algorithm.
+% It is merely an array designed for dynamic programming
+% that carries intermediate numbers for each node.
+% The way in which the algorithm modifies $v(\cdot)$ ensures that whenever we modify trees by deleting or inserting an edge, 
+% the sum over $v(r)+z(r)w(r)$  for $ r \ge_{T}n $ equals to the working sum of the right-hand side of equation (\ref{eqn:matvec_consistent}).
+
+
 \setcounter{table}{0}
 \renewcommand{\thetable}{S\arabic{table}}
 \setcounter{figure}{0}
 \renewcommand{\thefigure}{S\arabic{figure}}
 \setcounter{section}{1}
 \renewcommand \thesection{S\arabic{section}}
-
-\section*{Appendix?}
-
-\input{history}
 
 \section*{Supplementary material}
 
