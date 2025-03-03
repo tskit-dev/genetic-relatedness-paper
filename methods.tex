@@ -21,7 +21,8 @@
 We first introduce our notation for ARGs, following
 \citet{kelleher2016efficient, kelleher2018efficient}, and \citet{wong2023general}.
 %
-An ARG represents the history of a set of sampled genomes
+Using this terminology,
+an ARG represents the history of a set of sampled genomes
 by a collection of \emph{nodes} and \emph{edges}.
 %
 Each chromosome of an individual is represented by a \emph{node},
@@ -77,7 +78,7 @@ on each consecutive section of the chromosome.
 
 % --- TRAIT --------------------------------------------------------------
 
-\subsection{A trait-centric notion of genetic relatedness}
+\subsection{A trait-centric notion of genetic relatedness}  
 
 % Paragraph on a trait
 Consider an additive trait, that is, a trait whose value is
@@ -89,7 +90,7 @@ and that at each locus $\ell$ in the genome there is an ``ancestral'' allele $a_
 The additive effect of allele $x$ at locus $\ell$ is $Z_{\ell,x}$,
 which is relative to the ancestral allele, so that $Z_{\ell,a_\ell} = 0$.
 %
-More discussion of this choice can be found in Section~\ref{sec:reference_alleles} (Supplementary Material).
+More discussion of this choice can be found in Appendix~\ref{sec:reference_alleles}.
 %
 Then, an individual's genetic value is the sum of
 the effects of alleles across all $n_L$ loci, % TODO: consolidate between n_{\ell} and n_L (capital for random vars)!
@@ -99,6 +100,7 @@ We will write $G_{i,\ell,g}$ for % TODO: consolidate between c and g (g is used 
 the allele of the $g^\text{th}$ genome copy of individual $i$ at locus $\ell$,
 so that a $p$-ploid individual $i$ has genetic value: % TODO: consolidate between $n_g$ and p!
 %
+
 $$
 Z(i) = \frac{1}{p} \sum_{g=1}^p \sum_{\ell=1}^{n_L} Z_{\ell,G_{i,\ell,g}}.
 $$
@@ -120,12 +122,10 @@ in which case relatedness is proportional to covariance between individuals' tra
 %
 We now demonstrate this equivalence.
 
-% --- COV ----------------------------------------------------------------
-
 For simplicity, suppose for the moment all loci are bi-allelic,
 so $G_{i,\ell,g} \in \{0,1\}$, and $Z_{\ell,0} = 0$.
 %
-See Section~\ref{sec:multiallelic} (Supplementary Material) for a more general discussion.
+See Appendix~\ref{sec:multiallelic} for a more general discussion.
 %
 Under this model, if we write $p(i,\ell)$ as the proportion of alleles
 carried by individual $i$ at locus $\ell$ that are not ancestral
@@ -133,9 +133,11 @@ carried by individual $i$ at locus $\ell$ that are not ancestral
 then the  % (usual product-moment)
 covariance between the traits of individuals $i$ and $j$ is:
 %
+
 \begin{align} \label{eqn:trait_cov_non_centered}
     \Cov\left[Z(i), Z(j)\right] &= \sigma^2 \sum_{\ell=1}^{n_L} p(i,\ell) p(j,\ell) .
 \end{align}
+
 %
 Note that this is the covariance of $Z(i)$ and $Z(j)$ as random variables,
 averaging over random assignment of allelic effects,
@@ -175,6 +177,7 @@ $\bar{p}(\ell) = (p(1,\ell) + \cdots + p(n_I,\ell))/{n_I}$.
 The covariance of the traits 
 after centering to the sample mean is:
 %
+
 \begin{align} \label{eqn:trait_cov}
     \begin{split}
         &\Cov\left[Z(i) - \bar{Z}, Z(j) - \bar{Z}\right] \\
@@ -198,6 +201,7 @@ then, we can rewrite $\bar Z = \E[Z(U)]$ and $\bar p(\ell) = \E[p(U,\ell)]$.
 Consequently, the two sides of~\eqref{eqn:trait_cov}
 are also equal to:
 %
+
 \begin{align} \label{eqn:trait_cov_avg}
     \begin{split}
         &\E\left[(Z(i) - Z(U))(Z(j) - Z(V)\right)] \\
@@ -208,9 +212,7 @@ are also equal to:
 \end{align}
 %
 where the expectation is averaging over choice of $U$, $V$, and $L$.
-%
-This rewriting in terms of an average over auxiliary random choices
-can be helpful for gaining intuition or generalizing expressions.
+% This rewriting in terms of an average over auxiliary random choices can be helpful for gaining intuition or generalizing expressions.
 
 % --- COV & GRM ----------------------------------------------------------
 
@@ -229,17 +231,19 @@ Let $\mathbf{G}^c$ be the \textit{column-centered} haplotype matrix with
 entries $\mathbf{G}^c_{i,\ell} = \mathbf{G}_{i,\ell} - \mathbf{1}\bar{p}(\ell)$.
 %
 A common definition of covariance is:
+
 % 
 \[ \mathbf{C} = \frac{1}{n_L}\mathbf{G}^c{\mathbf{G}^c}^\intercal, \]
 %
 so that the covariance between individuals $i$ and $j$ based on their genotypes is:
+
 %
 \begin{align} \label{eqn:grm}
     \mathbf{C}_{i,j} = \frac{1}{n_L} \sum_{\ell=1}^{n_L} (\mathbf{G}_{i,\ell} - \bar{p}(\ell))(\mathbf{G}_{j,\ell} - \bar{p}(\ell)).
 \end{align}
 %
 This expression~\eqref{eqn:grm} is the kernel of many variants of GRM
-\citep{vanraden2008efficient, yang2010common, speed2015relatedness},
+\citep{vanraden2008efficient, yang2010common, speed2015relatedness, zhang2023biobank},
 apart from difference between the haploid and diploid setting,
 with the latter being an aggregate form of the former
 \citep{cockerham1976group, smith1985efficient}.
@@ -257,14 +261,19 @@ this is necessary because
 of the convention to define $Z(i)$ as the average across the $p$ genome copies.
 For diploids this results in an additional factor of four.
 
+Many definitions of relatedness weight the contribution of the $\ell^\text{th}$ locus
+by $(\bar p(\ell) (1 - \bar{p}(\ell)))^\alpha$.
+We take $\alpha=0$ for simplicity,
+but the discussion below applies more generally.
+
 % --- COV 3rd time -------------------------------------------------------
 
 % Paragraph on 3rd interpretation of COV
 A third interpretation of this covariance can be derived as follows.
 %
-Consider two haploid individuals $i$ and $j$ and
-two additional random haploid individuals $U$ and $V$ to
-form the random variable $(X_i, X_j, X_U, X_V)$
+As before, take $i$ and $j$ are two fixed haploid individuals;
+also take two additional random haploid individuals $U$ and $V$ 
+and form the random variable $(X_i, X_j, X_U, X_V)$
 that takes the value $(G_{i,\ell}, G_{j,\ell}, G_{U,\ell}, G_{V,\ell})$
 with probability $\nicefrac{1}{\left({n_I}^2 n_L\right)}$
 for $U, V = 1, \dots, n_I$ and $\ell = 1, \dots, n_L$.
@@ -274,52 +283,17 @@ random, with replacement, from the set of $n_I$ individuals, and
 also choose a locus $\ell$ uniformly at random from the set of $n_L$ loci;
 then $(X_i, X_j, X_U, X_V)$ is the alleles of those individuals at that locus.
 %
-In the following, we will repeatedly use the fact that
-$G^2_{i,\ell} = G_{i,\ell}$ (since $G_{i,\ell} \in \{0, 1\}$).
-%
-Conditional on locus $\ell$, we have:
-%
-\begin{align*}
-    \P(X_i = X_j | \ell) &= (1 - (G_{i,\ell} - G_{j,\ell})^2) \\
-                         &= 1 - G_{i,\ell} - G_{j,\ell} + 2G_{i,\ell}G_{j,\ell}, \\
-    %
-    \P(X_i = X_U | \ell) &= \frac{1}{n_I}\sum_{u=1}^{n_I} (1 - (G_{i,\ell} - G_{u,\ell})^2) \\
-                         &= \frac{1}{n_I}\sum_{u=1}^{n_I} (1 - G_{i,\ell} - G_{u,\ell} + 2G_{i,\ell}G_{u,\ell}) \\
-                         &= 1 - G_{i,\ell} - p_\ell + 2G_{i,\ell}p_\ell, \\
-    %
-    \P(X_U = X_V | \ell) &= \frac{1}{{n_I}^2}\sum_{u=1}^{n_I}\sum_{v=1}^{n_I} (1 - (G_{u,\ell} - G_{v,\ell})^2) \\
-                         &= \frac{1}{{n_I}^2}\sum_{u=1}^{n_I}\sum_{v=1}^{n_I} (1 - G_{u,\ell} - G_{v,\ell} + 2G_{u,\ell}G_{v,\ell}) \\
-                         &= 1 - 2p_\ell + 2p^2_\ell.
-\end{align*}
-%
-Combining these expressions, we have the following identity:
-%
-\[ 2(G_{i,\ell} - p_l)(G_{j,\ell} - p_l) = \P(X_i = X_j | \ell) -
-                                           \P(X_i = X_U | \ell) -
-                                           \P(X_j = X_V | \ell) +
-                                           \P(X_U = X_V | \ell) .\]
-% = (1 - Gi - Gj + 2GiGj) - (1 - Gi - p + 2Gip) - (1 - Gj - p + 2Gjp) + (1 - 2p + 2p^2)
-% = 1 - Gi - Gj + 2GiGj - 1 + Gi + p - 2Gip - 1 + Gj + p - 2Gjp + 1 - 2p + 2p^2
-% = (1 - 1 - 1 + 1) --> 0
-%   (-Gi + Gi) --> 0
-%   (-Gj + Gj) --> 0
-%   (p + p - 2p) --> 0
-%   (2GiGj - 2Gip - 2Gjp + 2p^2)
-% = 2(GiGj - Gip - Gjp + p^2)
-% = 2(Gi - p)(Gj - p)
-%
-Note the similarity to expression~\eqref{eqn:trait_cov_avg}.
-Since $\ell$ is chosen uniformly at random, it follows that:
-%
-\small{
+Then, as shown in Appendix~\ref{apx:proof_equality},
+it turns out that
+
 \begin{align} \label{eqn:cov_prob}
     \mathbf{C}_{i,j} = \frac{1}{2}\left(\P(X_i = X_j) - \P(X_i = X_U) - \P(X_j = X_V) + \P(X_U = X_V) \right).
 \end{align}
-}
 This expression is more readily extendable to multi-allelic data.
 
 % Paragraph on three expressions
 We therefore have the following three equivalences
+
 (\ref{eqn:trait_cov}, \ref{eqn:grm}, and \ref{eqn:cov_prob}):
 %
 \begin{align} \label{eqn:equivalence}
@@ -338,6 +312,7 @@ and let $U$ and $V$ be independently chosen individuals from the set of individu
 Then the quantity $n_L\mathbf{C}_{i,j}$
 is the expected number of pairwise allele matches between $i$ and $j$
 relative to the rest of individuals:
+
 %
 \begin{align} \label{eqn:relative_allele_matches}
     n_L \mathbf{C}_{ij} = \E[m(i,j) - m(i,U) - m(j,V) + m(U,V)],
@@ -349,7 +324,7 @@ This interpretation is closely related to the definition of kinship
 between individuals $i$ and $j$ as the
 ``the probability of a match between alleles drawn at random from each of them'',
 averaged over loci, and with the alleles drawn with replacement if $i=j$
-\citep{malecot1969mathemathics, speed2015relatedness}.
+\citep{malecot1948mathematiques, malecot1969mathemathics, speed2015relatedness}.
 %
 See also \citet{weir2017unified, weir2018how} and \citet{ochoa2021estimating} on
 other ``relative'' kinship estimators.
@@ -388,6 +363,7 @@ Let $A(i,j)$ be the total area of branches ancestral to individuals $i$ and $j$.
 %
 Then, just as above, with randomly chosen individuals $U$ and $V$:
 %
+
 \begin{align} \label{eqn:branch_cov}
     \mathbf{B}_{i,j}
          &=\Cov\left[Z(i) - \bar{Z}, Z(j) - \bar{Z}\right] \notag \\
@@ -417,11 +393,13 @@ be the TMRCA of $i$ and $j$, and $\hat{t}(k)$ the time of the root.
 Supposing that $i$ and $j$ are both at time 0,
 then the time of the root is equal to the TMRCA plus any additional, shared, branch lengths:
 %
+
 \begin{align} \label{eqn:branch_relations}
     \hat{t}(k) = b(i,j,k) + t(i,j,k) .
 \end{align}
 %
 We can use this relationship to split~\eqref{eqn:branch_cov} by local tree as follows:
+
 %
 \begin{align}
     \mathbf{B}_{i,j}
@@ -443,6 +421,7 @@ for the proportion of samples inheriting from $e$.
 Also, write $b_e$ for the length of $e$.
 %
 Then~\eqref{eqn:branch_cov} can be rewritten as:
+
 \begin{align*}
     \mathbf{B}_{i,j}
     = \sum_{k=1}^{n_T} s_k \sum_{e \in T_k} b_e (S_{i,e,k} - \bar{S}(e,k))(S_{j,e,k} - \bar{S}(e,k)) ,
@@ -474,6 +453,7 @@ and $r_k$ the root of the $k^\text{th}$ tree.
 A more general relationship that does not assume $i$ and $j$ are both at time zero is
 \citep{semple2003phylogenetics}:
 %
+
 \begin{align}
     d(i,r_k,k) + d(j,r_k,k) = 2 b(i,j,k) + d(i,j,k) .
 \end{align}
@@ -487,6 +467,7 @@ $D(i,j)$ the sum along the genome of the distances between $i$ and $j$ in the lo
 Then $D(i,j)$ is the branch genetic divergence between $i$ and $j$ \citep{ralph2020efficiently},
 and summing the previous relation across the genome, we get:
 %
+
 \begin{align} \label{eqn:divergence_relatedness}
     R(i) + R(j) = 2 A(i,j) + D(i,j) .
 \end{align}
@@ -494,6 +475,7 @@ and summing the previous relation across the genome, we get:
 Rearranging and substituting into the expression for branch relatedness~\eqref{eqn:branch_cov},
 centering cancels the terms with $R$, giving:
 %
+
 \begin{align}\label{eqn:divergence_relatedness_branch}
     \mathbf{B}_{i,j} = - \frac{1}{2} \E[D(i,j) - D(i,U) - D(j,V) + D(U,V)] .
 \end{align}
@@ -508,38 +490,42 @@ centering matrix, the above equation says that $\mathbf{B} = - \mathbf{P} \mathb
 %         + \frac{1}{n_I^2} \sum_{k=1}^{n_I} \sum_{\ell=1}^{n_I} D(k,\ell)
 %     \right) .
 % \end{align*}
+For more discussion and other relationships between relatedness and divergence,
+see \citet{zhang2023biobank}, Supplementary Note 3.
 
 \subsection{Branch PCA}
 
 Principal component analysis (PCA) is a commonly used technique to quantify and visualise population structure from genotype data. Mathematically, PCA operates by projecting samples onto a set of orthogonal axes, each defined as a linear combination of genotype values across SNPs or other genetic variants. An iterative characterization of PCA is as follows: choose the first principal component to be the axis that captures the maximum possible variance in the data, then choose the second principal component that maximizes variance whilst being orthogonal to the first, and so on. The first three or four principal components are often presented as a low-dimensional summary of population structure.
 
-Equivalent ways to undertake PCA is
-to compute the eigenvectors of the (centered) genotype GRM or
-to compute singular value decomposition (SVD) of underlying (centered) genotype matrix.
-Both use powerful linear algebra techniques that focus on computing a subset of the principal components.
-These decomposition can be efficiently approximated with randomized algorithms that can operate on
-dense matrices or on implicitly defined matrix-vector products \citep{halko2011findingstructure}.
+Principal components can be found, equivalently, as
+eigenvectors of the (centered) genotype GRM or
+singular vectors of the underlying (centered) genotype matrix.
+% Both use powerful linear algebra techniques that focus on computing a subset of the principal components.
+Both decompositions can be efficiently approximated with randomized algorithms that can operate on
+matrices only implicitly defined through matrix-vector products \citep{halko2011findingstructure}.
 \citet{mcvean2009genealogical} gave a genealogical interpretation of PCA, while
-\citet{fan2022genealogical} showed that branch PCA can better capture recent population structure than genotype PCA,
+\citet{fan2022genealogical} showed that branch PCA can 
+in some cases better capture recent population structure than genotype PCA,
 even when based on the same genotype information.
-These developments indicate an alternative approach to characterizing population structure,
-either through dense branch GRM or implicitly defined branch GRM-vector product.
+% These developments indicate an alternative approach to characterizing population structure,
+% either through dense branch GRM or implicitly defined branch GRM-vector product.
 In sub-section~\ref{subsec:matvec} we describe an efficient algorithm for
 such a product that bypasses the construction of branch GRM
 and operates directly on tree sequence encoding of an ARG.
-However, we first connect and demonstrate pedigree and branch relatedness.
+However, we first discuss the connection between pedigree and branch relatedness.
 
 \subsection{Connection between pedigree and branch relatedness}
 
 The pedigree relatedness of two individuals in a given pedigree is
-the probability that they both inherit from the same ancestral genomes within the pedigree,
+the probability that they both inherit from the same ancestral genomes within the pedigree
+at a given locus,
 that is, that they are IBD within the pedigree \citep{malecot1969mathemathics}.
 %
 While pedigree and branch relatedness seem similar,
 they in fact differ in what they measure.
 %
 Using IBD to define an ARG-based notion of relatedness would lead to an ``IBD GRM''
-as defined by~\citet{tsambos2022efficient}.
+in the sense discussed by~\citet{tsambos2022efficient}.
 %
 While the IBD relatedness measures the
 probability of identity with reference to a particular time (or set of ancestors) in the past,
@@ -558,7 +544,7 @@ tells us that it is better to think about branch relatedness as having units of 
 \subsection{Demonstration with the French-Canadian pedigree}
 
 To empirically illustrate the connection between pedigree and branch GRM,
-we analysed the pedigree of a subset of 2,321 probands from the BALSAC dataset,
+we analysed the pedigree of a subset of 2,321 individuals from the BALSAC dataset,
 drawn from five different regions in Quebec (Figure~\ref{fig:PCA_map}G).
 %
 For this subset, we computed pedigree and branch GRM.
@@ -582,40 +568,43 @@ See Methods for more details on the dataset and simulations performed.
 
 % Paragraph on pedigree PCs
 The overall population structure according to pedigree and branch PCA
-of the 2,321 probands is shown in Figure~\ref{fig:PCA_map}
+of the 2,321 individuals is shown in Figure~\ref{fig:PCA_map}
 with noticeable clustering by the five regions.
 %
 The pedigree PCs show sharp distinctions between individuals from different regions
 (Figure~\ref{fig:PCA_map}A-C).
 %
-Although individuals from each of the regions share a common bottleneck,
-over the last four centuries,
-each of the regions have drifted in their own unique way
-leading to each region pulling a distinct principal component.
+Although all regions share a common bottleneck,
+over the last four centuries 
+there has been a sufficiently little movement that each region pulls a distinct principal component.
+% each of the regions have drifted in their own unique way
+% leading to each region pulling a distinct principal component.
 %
-PCs 1 and 2 show a clear structure between individuals from Chaudière, Chaleur Bay, and Mistassini.
+PCs 1 and 2 show a clear structure between Chaudière, Chaleur Bay, and Mistassini,
 %
-PCs 3 and 4 distinguish between individuals of each of the five regions except L'Assomption.
+PCs 3 and 4 distinguish between each of the five regions except L'Assomption,
 %
-PCs 5 and 6 illustrate a clear distinction between L'Assomption and Chaleur Bay.
-%
-Only a few individuals deviated from the clusters.
+and PCs 5 and 6 illustrate a clear distinction between L'Assomption and Chaleur Bay.
+% Only a few individuals deviated from the clusters.
 
 % Paragraph on branch PCs
 The branch PCs also show the population structure (Figure~\ref{fig:PCA_map}D-F),
-but there are at least two notable differences compared to pedigree PCs.
-%
-First, some regions clustered differently with branch PCs than with pedigree PCs.
-%
-This difference could be because branch PCs are based on the ARG,
-which captures deeper ancestry than the pedigree,
-however due to the shared bottleneck and pedigree missingness
-further research is needed to study the source of these differences.
-%
-Second, branch PCs show more variation than pedigree PCs.
+but with substantially less ``clean'' patterns.
+% PLR: I don't think there's anything meaningful in the order these PCs happened to sort in.
+% but there are at least two notable differences compared to pedigree PCs.
+% %
+% First, some regions clustered differently with branch PCs than with pedigree PCs.
+% %
+% This difference could be because branch PCs are based on the ARG,
+% which captures deeper ancestry than the pedigree, % PLR: it can't be this because we recapitate with a randomly mating population
+% however due to the shared bottleneck and pedigree missingness
+% further research is needed to study the source of these differences.
+% %
+% Second, branch PCs show more variation than pedigree PCs.
 %
 %This higher variation is partly because we have used one simulated ARG (for one chromosome) for the branch GRM, leading to a high variance in branch PCs, but again also because of deeper ancestry encoded in the ARG, which pedigree does not capture.
-This higher variation is due to the randomness of genetic inheritance within a single chromosome, which is not reflected in the pedigree \citep{weir2006genetic, hill2011variation, thompson2013identity, garciacortes2013variance}.
+This higher variation is due to the randomness of genetic inheritance within a single chromosome,
+which is averaged over by pedigree relatedness \citep{weir2006genetic, hill2011variation, thompson2013identity, garciacortes2013variance}.
 %
 This variability is also evidenced when comparing relatedness between a subset of 250 individuals: a clearer structure emerges with pedigree GRM than with branch GRM (Figure~\ref{fig:grm_heatmap}).
 % 
@@ -644,7 +633,7 @@ while this is not the case with branch relatedness.
       Lower-triangle: Heatmap of the pedigree GRM. 
       Bottom: Barplot of the average founder depth in the pedigree for each individual.
       The ordering of individuals is based on region and within region hierarchically on pedigree GRM.
-      Because of the log scaling in the heatmap of branch GRM, we used an epsilon of 1e-4 to avoid issues with values close to zero.
+      Because of the log scaling in the heatmap of branch GRM, we used an epsilon of $10^{-4}$ to avoid issues with values close to zero.
     }
     \label{fig:grm_heatmap}
 \end{figure}
@@ -652,10 +641,12 @@ while this is not the case with branch relatedness.
 %\subsubsection{Variability in branch GRM within a fixed pedigree}
 
 % Paragraph on main relationship between branch and pedigree relatedness
-Next, we explored the variability in branch relatedness across the 100 simulated ARGs
+Next, we explored how the branch relatedness of a given pair of individuals
+varies across 100 ARGs simulated within the pedigree,
+for a large number of pairs
 (Figure~\ref{fig:boxplots}).
 %
-As expected, the branch relatedness increases with pedigree relatedness.
+As expected, branch relatedness increases with pedigree relatedness.
 %
 Since pedigrees are often shorter than the mean TMRCA,
 and so the contribution of branch lengths within the pedigree is small,
@@ -665,7 +656,7 @@ can be derived as follows.
 First, since pedigree relatedness $r_{i,j}$ between a pair of individuals
 is the expected proportion of the genome on which the two inherit from
 a common ancestral genome within the pedigree,
-we expect branch relatedness $C_{i,j}$ to be $r_{i,j} C_0 + (1 - r_{i,j}) C_*$,
+we expect branch relatedness $C_{i,j}$ to be roughly $r_{i,j} C_0 + (1 - r_{i,j}) C_*$,
 where $C_0$ is the average branch relatedness of a genome to itself in pedigree founders,
 and $C_*$ is the average branch relatedness of two distinct genomes from the pedigree founders.
 %
@@ -721,29 +712,28 @@ branch relatedness across the whole genome.
 
 % --- GRM computation ----------------------------------------------------
 
-\subsection{Efficient branch GRM-vector products}\label{subsec:matvec}
-% JK: I think we can lose this roadmap. Leaving it with 
-% you Peter.
-We now describe algorithms to compute the branch GRM, showing that it is 
-fundamentally a quadratic time operation. Many downstream applications, however,
-do not actually require the GRM itself, but instead use the product of the 
-GRM times somes vector. We provide a rigorous description of an efficient 
-algorithm for this task without forming the branch GRM,
-and demonstrate that it has \emph{logarithmic} time complexity.
-We then provide an algorithm to compute branch PCA based on this implicit GRM-vector
-product used in a randomized SVD method \citep{halko2011findingstructure},
-and illustrate its scalability
-via simulation-based benchmarks.
-The algorithms described are implemented in
-the \tskit{} library \citep{ralph2020efficiently, kelleher2024tskit}.
+\subsection{Computation}\label{subsec:matvec}
 
-\subsubsection{Computing branch GRM}
+We next present efficient algorithms for various operations,
+% We now describe algorithms to compute the branch GRM, showing that it is 
+% fundamentally a quadratic time operation. Many downstream applications, however,
+% do not actually require the GRM itself, but instead use the product of the 
+% GRM times somes vector. We provide a rigorous description of an efficient 
+% algorithm for this task without forming the branch GRM,
+% and demonstrate that it has \emph{logarithmic} time complexity.
+% We then provide an algorithm to compute branch PCA based on this implicit GRM-vector
+% product used in a randomized SVD method \citep{halko2011findingstructure},
+% and illustrate its scalability
+% via simulation-based benchmarks.
+which are implemented in the \tskit{} library \citep{ralph2020efficiently, kelleher2024tskit}.
 
-As shown in Eq.~\eqref{eqn:divergence_relatedness_branch},
+\subsubsection{Computation of the entire branch GRM}
+
+As shown in equation~\eqref{eqn:divergence_relatedness_branch},
 the branch GRM $\mathbf{B}$ is a 
 straightforward function of the more fundamental divergence matrix $\mathbf{D}$.
-The time complexity of computing the branch GRM is therefore the same as 
-the divergence matrix.
+% The time complexity of computing the branch GRM is therefore the same as 
+% the divergence matrix.
 The divergence matrix describes
 the total branch length separating all $n_S^2$ pairs of samples, such 
 that $\mathbf{D}_{i,j} = 2t_u - t_i - t_j$ where $u$ is the MRCA of samples $i$ and $j$.
@@ -784,12 +774,12 @@ as we need to perform $O(n_S^2)$ work for all $n_T$ trees.
 While this is the same complexity as the incremental approach outlined
 above, this ``na{\"i}ve'' approach is in practise much faster, and 
 is therefore the implementation used in \tskit{} via the \tsGRM{} method.
-\eGRM{} package~\citet{fan2022genealogical} essentially uses the same approach,
-although implemented in Python and does not use efficient bulk MRCA queries.
+The \eGRM{} package~\citet{fan2022genealogical} essentially uses the same approach,
+although implemented in Python and without efficient bulk MRCA queries.
 Their approach therefore requires $O(n_T n_S^2 \log^2{n_S})$ time, 
 as each MRCA query requires $O$(tree height) time, which is $\log n_S$
 if the trees are balanced~\citep{kelleher2016efficient}.
-Supplementary Fig~\ref{fig:SI_benchmarking} shows that the \tskit{} implementation 
+Figure~A1 (Appendix~\ref{sec:grm_benchmarking}) shows that the \tskit{} implementation 
 is faster than the \eGRM{}
 implementation~\citep{fan2022genealogical},
 % I don't know why this is, but need to acknowledge
@@ -969,7 +959,8 @@ Many calculations with GRMs involve matrix-vector products
 to first compute the GRM, and to then compute its product with 
 the vector in question. This places strong limits on the size of the 
 datasets that we can work with, due to quadratic space and time complexity
-in the number of samples, $n_S$. In certain situations, however, 
+in the number of samples, $n_S$.
+In certain situations, however, 
 given that the output of an $(n\times n)$-matrix times an $n$-vector is,
 itself an $n$-vector, we can perform this calculation without explicitly
 materialising the matrix, thus avoiding the quadratic space complexity.
@@ -980,25 +971,35 @@ elements of the matrix. Here, we develop an algorithm of the
 latter form, which allows us to exactly compute the product of the 
 branch GRM with an arbitrary vector in substantially less time than
 it would take to compute the matrix itself.
+Roughly, this works because although the GRM is not itself sparse or low rank,
+the ARG provides a decomposition of the ARG into a sum
+of low-rank components with hierarchical structure -- the (sub)trees.
 
 To do this we require some notation.
-Suppose that $\mathbf{C}_{s,t}$ is an uncentered branch relatedness between
+Suppose now that $\mathbf{C}_{s,t}$ is the uncentered branch relatedness between
 sampled genomes $s$ and $t$ as computed from the trees, that is,
 the sum of the areas of all branches in all trees that are ancestral to both $s$ and $t$.
-% TODO: we used b for somehing else before
-\begin{align} \label{defn:pairwise_relatedness}
-    \mathbf{C}_{s,t} = \sum_k (b_k - b_{k-1}) \sum_{n: s,t \le_{T_k} n} \ell_{T_k}(n) % TODO: what is \ell_{T_k} here?
-\end{align}
+This is $\mathbf{C}_{s,t} = \Cov[Z(s), Z(t)]$ as in equation~\eqref{eqn:branch_cov}.
 For a given vector $\mathbf{w}$, we'd like to compute the matrix-vector product $\mathbf{C}\mathbf{w}$.
-Suppose that $b_k$ ($k=0,\ldots,K$) are the recombination breakpoints on the genome
+% TODO: we used b for somehing else before
+Write $b_k$ ($k=0,\ldots,K$) for the unique recombination breakpoints on the genome
 including the start and end of the genome (the genome is a closed interval $[b_0, b_K]$).
-Suppose that the $k^{\text{th}}$ tree $T_k$ extends over a span $b_k - b_{k-1}$ along the genome,
-that the length of the edge (in units of time) above node $n$ in $T_k$ is $\ell_{T_k}(n) = t_{p(n)}-t_n$,
-where $p(n)$ is the parent node of $n$.
-The partial ordering $\le_T$ of nodes are induced by the tree that older nodes are larger than the younger nodes.
+Suppose that the $k^{\text{th}}$ tree $T_k$ extends over the region from $b_k$ to $b_{k-1}$ along the genome,
+that the length of the edge (in units of time) above node $n$ in $T_k$ is
+$\ell_{T_k}(n) = t_{p_{T_k}(n)}-t_n$,
+where $p_{T_k}(n)$ is the parent node of $n$ in $T_k$.
+Finally, write $\le_T$ 
+for the partial ordering of nodes induced by tree $T$
+with older nodes larger than younger nodes.
+Then, the uncentered branch relatedness matrix is
+
+\begin{align} \label{defn:pairwise_relatedness}
+    \mathbf{C}_{s,t} = \sum_k (b_k - b_{k-1}) \sum_{n: s,t \le_{T_k} n} \ell_{T_k}(n) .
+\end{align}
 
 % Paragraph on computing the matrix-vector product
 The $s^{\text{th}}$ element of the matrix-vector product $\mathbf{C}\mathbf{w}$ is:
+
 \begin{align} \label{eq:similar_ralph2020}
     \begin{aligned}
         (\mathbf{C}\mathbf{w})_s &=
@@ -1021,7 +1022,11 @@ The $s^{\text{th}}$ element of the matrix-vector product $\mathbf{C}\mathbf{w}$ 
         \sum_{n: s\le_{T_k} n} \ell_{T_k}(n) w_k(n)
     \end{aligned}
 \end{align}
+Here 
+$\{n : s,t \le_{T_k} n\}$ is the set of nodes $n$ that are ancestral to both $s$ and $t$ in $T_k$,
+and $\{n : s \le_{T_k} n\}$ are those nodes just ancestral to $s$.
 The new variable $w_k(n)$ is the sum of sample weights below $n$ in tree $T_k$:
+
 \begin{align}
     w_k(n) = \sum_{t:t \le_{T_k} n} {w}_t ,
 \end{align}
@@ -1070,12 +1075,12 @@ so by accumulating values of haplotypes, we reduce the amount of necessary work.
     compute the values 
     $y_s=\sum_t\mathbf{C}_{st} w_t$ for $1 \le s \le n_S$, assuming all samples are leaves in all trees.
     Let $T$ be the current tree,
-    $\ell_T(n) = t_{p(n)} - t_n$ be the length of the branch above $n$ in $T$ (or zero, if $n$ has no parent),
+    $\ell_T(n) = t_{p_T(n)} - t_n$ be the length of the branch above $n$ in $T$ (or zero, if $n$ has no parent),
     initialize $k = 1$, $x(n) = 0$, and $v(n) = 0$ for all $n \in \mathbf{V}$.
     Set $w(s) = w_s$ for each sample $s$, and $w(n)=0$ for all other nodes.
     % Is this correct Peter? This really confused me for a while, using the 
     % same notation for arrays we're storing and functions.
-    Let $z(n) = \ell_{T_k}(n) (b_k - x(n))$ be a function 
+    Let $z(n) = \ell_{T}(n) (b_k - x(n))$ be a function 
     computed from the current values of $k$ and $x$ at all times.
 }
 
@@ -1201,7 +1206,8 @@ the last position this node was updated.
 The above explanation is a rough sketch of the algorithm.
 A full proof of correctness is provided in Appendix~\ref{sec:proof-algv-correct}.
 The algorithm has been implemented in the \tsGRMv{} % \texttt{ts.genetic\_relatedness\_vector}
-in \tskit{}, and is extensively tested.
+method in \tskit{}, somewhat generalized to allow for samples that are not leaves,
+and is extensively tested.
 
 % After passing down $v(n)$, it is set to $0$ and $x(n)$ is set to $b_k$ (the current position).
 % Then, $v(n)$ repeats to accumulate the contributions from above, including itself,
@@ -1224,7 +1230,7 @@ in \tskit{}, and is extensively tested.
 
 \begin{figure}
     \centering
-    \includegraphics[width=5cm]{Figures/matvec-benchmark}
+    \includegraphics[width=0.7\textwidth]{Figures/matvec-benchmark}
     \caption{Computational scaling of the branch GRM-vector product algorithm
     implemented in \tskit{} for subsets of a large simulation 
     of French-Canadians.
@@ -1265,7 +1271,8 @@ We found the principal components (PCs) of the branch GRM
 using a randomized SVD \citep{halko2011findingstructure},
 a method that can find the
 eigenvectors of a matrix that is only implicitly defined through a matrix-vector multiplication.
-Algorithm~\algorithmref{rPCA} explains this process.
+% Algorithm~\algorithmref{rPCA} explains this process.
+We implemented the algorithm as \tsPCA{} in \tskit{}.
 
 \begin{taocpalg}{rPCA}{Randomized PCA of branch GRM}
 {
@@ -1328,13 +1335,13 @@ Notably, \tsGRM{} failed due to memory limits
 when computing the branch GRM for $2^{12} = 4096$ sample nodes and
 when computing the genotype (site) GRM for $2^{14} = 16384$ sample nodes.
 %
-Implementation of randomized PCA on genotype matrix in \scikitallel{}
+Randomized PCA on the genotype matrix in \scikitallel{}
 failed due to memory limits for $2^{16} = 65536$ sample nodes.
 %
-Notwithstanding, the implementations that relied solely on
-the implicit matrix-vector product using \tskit{} were substantially more efficient.
+Implementations that relied solely on
+the implicit matrix-vector product using \tskit{} were substantially more efficient:
 %
-Specifically, both \tsPCA{} and \eigsh{} from \scipy{} using \tsGRMv{} % not \tsGRMw{}!?
+both \tsPCA{} and \eigsh{} from \scipy{} using \tsGRMv{}
 as a linear operator were able to scale to $2^{20} = 1,048,576$ samples.
 %
 The native implementation of \tsPCA{} consistently outperformed \eigsh{},

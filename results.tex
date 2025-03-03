@@ -24,6 +24,7 @@ As a result, the pedigree used in this study contains ascending genealogy for
 with individuals sampled across the five selected parishes per region.
 
 % Paragraph on filtering individuals
+% TODO: what does "proband" mean here?
 The sub-pedigree obtained from the selected five regions, each containing five parishes,
 consisted of 61,490 individuals, including 2,321 probands.
 %
@@ -59,23 +60,24 @@ After this filtering step, a total of 2,273 probands were retained for downstrea
 \end{table}
 
 % Paragraph on pedigree stats and simulated ARGs
-We computed pedigree and branch GRM between individuals of interest.
+We computed pedigree and branch relatedness between individuals of interest.
 %
-Pedigree GRM was computed after
+Pedigree relatedness was computed after
 \citet{lange1992calculation} and \citet{colleau2002indirect}.
 %
-Branch GRM was calculated from an ARG
+Branch relatedness was calculated from an ARG
 obtained with the simulation based on pedigree and ancestry
 described in \citet{andersontrocme2023genes}.
 %
 In short, this simulation uses \msprime{} \citep{baumdicker2022efficient} 
 for a backward in time simulation in two stages.
 %
-First, it samples chromosome inheritance through the fixed pedigree
+First, it samples chromosomal inheritance through the fixed pedigree
 to obtain an ARG within the pedigree.
 %
-Second, it further samples chromosome inheritance through the assumed demographic model
-to recapitate the ARG from the first stage.
+Second, it simulates the ancestry of the ARG obtained in the first stage
+by coalescent simulation from a given demographic model
+(i.e., ``recapitation'').
 %
 We elected to simulate only the complete human chromosome 3 due to its large size
 while reducing the overall computational cost of our study.

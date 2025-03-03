@@ -1,0 +1,41 @@
+Post1:
+
+Proud to publish a pre-print on years of work: “On ARGs, pedigrees, and genetic relatedness matrices”. Collaboration including Brieuc Lehman, Hanbin Lee, Luke Anderson-Trocme, Jerome Kelleher, Gregor Gorjanc, and Peter Ralph.
+
+Post2:
+
+Genetic relatedness is a central concept in genetics, underpinning studies of population and quantitative genetics in human, animal, and plant settings. It is typically stored as a genetic relatedness matrix (GRM), whose elements are pairwise relatedness values between individuals. It has been defined in various contexts based on pedigree, genotype, phylogeny, coalescent times, and, recently, ancestral recombination graph (ARG).
+
+Post3:
+
+In this study we have:
+
+1) Discussed the different definitions of relatedness in a unifying context, making use of the additive model of a quantitative trait to provide a definition of “branch relatedness” and the corresponding “branch GRM”
+
+Add the diagram
+
+Post4:
+
+2) Explored the relationship between branch relatedness and pedigree relatedness through a case study of French-Canadian individuals that have a known pedigree.
+
+Add the figure from paper
+
+Post5:
+
+3) Through the tree sequence encoding of an ARG, we derived an efficient algorithm for computing products between the branch GRM and a general vector, without explicitly forming the branch GRM. This algorithm leverages the sparse encoding of genomes with the tree sequence and hence enables large-scale computations with the branch GRM.
+
+Add the simple figure from paper.
+
+Post6:
+
+4) We demonstrate the power of this algorithm by developing a randomized principal components algorithm for tree sequences that easily scales to MILLIONS of genomes.
+
+Add the figure from paper.
+
+Post7:
+
+5) All algorithms are implemented in the open source tskit Python package.
+
+Post8:
+
+This work consolidates the different notions of relatedness as branch relatedness and by leveraging the tree sequence encoding of an ARG it provides efficient algorithms that enable computations with the branch GRM that scale to mega-scale genomic datasets.

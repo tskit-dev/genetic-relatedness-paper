@@ -8,83 +8,126 @@ especially the emergent notion of ``branch'' relatedness.
 %
 We also demonstrated how branch relatedness compares with pedigree relatedness in simulations through a pedigree of French-Canadians.
 %
-We then described an algorithm for branch GRM-vector product, to bypass the fundamental problem of
-quadratic complexity of computing and storing GRMs.
+We then described an algorithm for branch GRM-vector product,
+to bypass the fundamental problem of quadratic complexity of computing and storing GRMs.
 %
 This algorithm allowed us to use randomized linear algebra methods
-to do branch PCA using an ARG on a million samples in 30 seconds
+for branch PCA using an ARG on a million samples in 30 seconds
 and less than 4GB of RAM.
 %
 We close the discussion with an outlook for the use of these algorithms in population and quantitative genomic analyses.
 
-% Paragraph on key points behind branch GRM
-% How we relate to \cite{fan2022genealogical} and \cite{zhang2023biobank}
-% and past work with pedigree, phylogenetic trees, and genotypes
+% Paragraph on key points behind branch relatedness
+The described branch relatedness unifies several notions of relatedness into one framework
+by leveraging the ARG encoding of how sampled genomes relate to each other.
+One thing that distinguishes these notions of relatedness
+is which aspects of genetics and genealogy are unobserved or observed,
+and which are averaged over or fixed.
+For instance, pedigree relatedness averages over
+recombinations within a known pedigree,
+genotype relatedness averages over typed loci stored in a genotype matrix, 
+while branch relatedness averages over mutations on
+inherited genome segments in an ARG.
+Our branch relatedness is conceptually equivalent to the eGRM from \cite{fan2022genealogical} and the ARG-GRM from \cite{zhang2023biobank},
+although we omit the scaling by $(p(1-p))^\alpha$ used by both.
+The ``e'' in eGRM denotes expectation of the genotype GRM under a Poisson mutation process along ARG branches. 
+At the risk of further confusing terminology,
+we adopted the term \textit{branch} to highlight that this measure of similarity is derived from the extent of shared branch area between individuals,
+explicitly distinguishing it from expectations that are conditional
+on other quantities -- for instance, expected covariance given a pedigree
+or expected covariance given a collection of genotypes (but not their effect sizes).
+We have seen that branch relatedness varies substantially
+for relatives of a given degree, in line with the theory
+on pedigree and genetic ancestors
+\citep{chang1999recent, weir2006genetic, hill2011variation, thompson2013identity, garciacortes2013variance}.
+Does mutation contribute a large degree of variability
+in addition to the branch relatedness?
+\citet{fan2022genealogical} computed the ``varGRM'' to describe this
+(for general theory see \citet{ralph2019empirical});
+and in general the answer is ``no'' --
+randomness due to the mutation process adds little variability
+beyond recombination, except to small segments of the genome.
+% the SD is proportional to the sqrt of the number of shared mutations
+% if you want to be more concrete.
 
+% Relatedness from a trait model
+We have chosen to interpret GRM in the context of a generative model of traits following 
+the initial definition of relatedness \citep{wright1922coefficients}.
+However, the worth of a given GRM is determined by how well it works in practice,
+rather than its theoretical justification,
+and applications have motivated a number of interpretations and adjustments \citep{speed2015relatedness}.
+However, adjusting the trait model gives a natural setting in which
+to suggest extensions and the corresponding GRM is then a by-product of these extensions.
+Although our current definition of relatedness assumes equal prior effects across all loci, one could consider alternatives whereby we incorporate prior information on effect sizes. For example, selection reduces frequency of deleterious mutations with strong effects from the population and such mutations may justify a different prior;
+this prior might depend on mutation age in a similar way that the GRMs often weigh alleles by a function of their frequency \citep{speed2015relatedness}.
+Functional annotations have been used to improve fine-mapping and genomic prediction \citep[e.g.][]{MacLeod2016Exploiting, weissbrod2020functionally, weissbrod2022leveraging} and could be incorporated as prior information on mutation effects, which will refine branch relatedness calculations for trait-based analyses.
 
-
-\todo[inline]{Cite genetic vs genealogical/pedigree ancestors papers and why branch GRM can be more variable than pedigree GRM even when we do it across chromosomes - see results}
-
-% TODO: discuss our observed variance in branch GRM and Fan et al. vGRM
-
-A trait-centric perspective on relatedness is suggestive of a number of possible extensions. Although our current definition of relatedness assumes equal prior effects across all loci, one could consider alternatives whereby we incorporate prior information on effect sizes. For example, selective pressure means that deleterious alleles with strong effects are removed from the population more quickly and so may justify a prior that is more concentrated around zero. Functional annotations have been used to improve fine-mapping and genomic prediction \citep{weissbrod2020functionally, weissbrod2022leveraging} and could be incorporated to refine branch relatedness calculations for trait-based analyses.
-
-% - Efficient branch GRM-vector products 
-This paper also introduces new algorithms to efficiently compute branch relatedness. 
-%JK I wouldn't talk about computing the full GRM at all, it's a 
-% naive approach. Maybe we could works these pedigree GRM refs
-% somehwere else?
-Our approach to computing the branch GRM is similar to the algorithm for pedigree GRM \citep{emik1949systematic, cruden1949computation, henderson1976simple} in that the algorithm traverses the tree sequence to calculate the GRM for the chosen samples. Additionally, we develop a method for performing matrix-vector product calculations with the branch GRM without storing the full matrix in memory.  These algorithms leverage the sequential nature of the tree sequence data structure to reduce the required number of operations. \todo{\@Gregor - is this right? I've taken this from the old discussion but I'm not sure which bit of the pedigree computations are sequential so I may have misunderstood} This is akin to similar algorithms developed for pedigrees \citep{colleau2002indirect}. Such matrix-vector product calculations facilitate the efficient implementation of common analyses based on ARG relatedness, including principal component analyses.
-
-Our branch GRM is equivalent to the eGRM put forward by \cite{fan2022genealogical} and the ARG-GRM put forward by \cite{zhang2023biobank}. The `e' in eGRM denotes `expected', reflecting that it represents the expectation of the canonical (site) GRM under a Poisson mutation process along ARG branches. We adopt the term \textit{branch} to highlight that this measure of similarity is derived from the extent of shared branch area between individuals, explicitly distinguishing it from genotype (site) GRMs.
+% Branch GRM algorithms
+% This paper also introduces a new algorithm to efficiently compute branch GRM and
+% more importantly algorithms to efficiently compute operations \emph{with} the branch GRM. 
+% It is natural to first develop an algorithm to compute a GRM from the observed data,
+% but this approach is fundamentally challenging due to the $O(n^2)$ time and space
+% computational complexity.
+% For example, the early recursive algorithm for pedigree GRM
+% \citep{emik1949systematic, cruden1949computation} has been
+% superseded by linear algebra operations directly on the pedigree graph
+% \citep{henderson1976simple, colleau2002indirect}.
+% Also, genotype GRM-vector products can be performed directly via
+% genotype matrix-vector products \citep{colleau2017fast}.
+% We used the Schieber-Vishkin
+% algorithm \citep{Schieber1988On,knuth2011combinatorial} to efficiently
+% find MRCAs and corresponding branch GRM among genomes in an ARG,
+% but this approach does not scale to genomic datasets of interest today, let alone in the future.
 
 % JK: again, let's just stay away from our implementation of 
 % computing the full matrix. It's not interesting, and waters
 % down the real contribution of a logarithmic-time algorithm
 % for doing the product. The whole point should be that computing
 % the full matrix is not something you would actually do.
-Our approach to computing the branch GRM is similar to that of \cite{fan2022genealogical}, relying on traversing all the trees in the tree sequence to compute the GRM. By implementing our method directly in C in tskit, we achieve a moderate reduction in computational time compared to the eGRM package. In contrast, \cite{zhang2023biobank}, approximate the branch GRM by sampling new mutations on the branches and computing the standard GRM from these mutations
-\citep{vanraden2008efficient, yang2010common}. While this sampling approach converges to the branch GRM under realistic mutation rates and avoids the need to update $n^2$ GRM elements for each branch, it does not compute the GRM exactly. Our method, in contrast, provides an exact computation of the branch GRM. Additionally, by implementing efficient matrix-vector product algorithms, we enable branch PCA on tree sequences with over one million samples in approximately 30 seconds—far exceeding the computational feasibility of direct PCA on the branch GRM, which is limited to around 10,000 samples \citep{fan2022genealogical}.
+% PR: okay, I'm commenting this out and writing a new paragraph below.
+% Our approach to computing the branch GRM is similar to that of \cite{fan2022genealogical}, relying on traversing all the trees in the tree sequence to compute the GRM. By implementing our method directly in C in tskit, we achieve a moderate reduction in computational time compared to the eGRM package. In contrast, \cite{zhang2023biobank}, approximate the branch GRM by sampling new mutations on the branches and computing the standard GRM from these mutations \citep{vanraden2008efficient, yang2010common}. While this sampling approach converges to the branch GRM under realistic mutation rates and avoids the need to update $n^2$ GRM elements for each branch, it does not compute the GRM exactly. Our method, in contrast, provides an exact computation of the branch GRM. Additionally, by implementing efficient matrix-vector product algorithms, we enable branch PCA on tree sequences with over one million samples in approximately 30 seconds—far exceeding the computational feasibility of direct PCA on the branch GRM, which is limited to around 10,000 samples \citep{fan2022genealogical}.
 
-\todo[inline]{A paragraph on computational scaling}
-% TODO: mention matvec with pedigree and genotype GRMs
-% \cite{colleau2002indirect} described how to obtain pedigree GRM
-% for a set of individuals from a pedigree without explicitly calculating the full GRM.
-% %
-% This was achieved by working with the sparse inverse of the pedigree GRM and
-% solving a system of equations for the susbset GRM.
+% Better algorithm
+%
+Computing a full GRM is inherently a quadratic operation and therefore not feasible on large sample sizes. It is possible, however, to calculate GRM-vector products at a substantially lower computational cost.
+% Working with the branch GRM with tree-by-tree algorithms is challenging, because the contribution of a branch above $n$ samples affects $O(n^2)$ entries in the GRM.
+% With $n_S$ samples and $n_T$ local trees, each of which has $O(n_S)$ edges, a na{\"i}ve algorithm is $O(n_S^3 n_T)$.
+% Here we discuss how this can be reduced to $O(n_S^2 n_T)$,
+% but this is still infeasible for large samples.
+With $n_S$ samples and $n_T$ local trees, our branch GRM-vector product algorithm has complexity $O(n_S + n_T \log n_S)$. This relies on two insights: first, we use local trees to
+efficiently encode the low-dimensional block structure
+of the contribution to the GRM of a single local tree;
+and second, we leverage the fact that most tree structure
+is shared across many local trees in the ARG.
+This removes the need for approximate methods
+such as the Monte Carlo sampling of mutations on the ARG
+used by \citet{zhang2023biobank}.
+The method is most similar to \citet{zhu2024variance},
+who uses iterative algorithms
+to compute GRM-vector multiplication with the
+genotype GRM from Monte Carlo-sampled mutations,
+but the algorithm is not given, so a more detailed comparison
+is not possible.
+We also provide a highly efficient vector-GRM-vector product algorithm,
+similar to the classic algorithm for large pedigrees \citep{colleau2002indirect},
+using the generic framework of \citet{ralph2020efficiently}.
 
-\todo[inline]{TODO: If we touch on IBD, could mention \cite{huang2024estimating}
-have an efficient representation of IBD that is ~linear?
-Estimating evolutionary and demographic parameters via ARG-derived IBD --> maybe that work could be scaled by our algorithm!?}
-
-% Outlook paragraphs
-
-While relatedness has numerous downstream applications, we expect this perspective to be particularly impactful in phenotypic analyses, such as accounting for population structure in genome-wide association studies and improving genomic prediction, including polygenic scoring.
-
-By capturing old and recent ancestry,
-branch GRM could help with quantitative genomic modellling across ancestry groups
-and with this improve portability of genomic predictions across the groups
-\citep{legarra2021correlation, durvasula2021negative, wang2022challenges, prive2022portability, schultz2022stability, yair2022population}
-
-\todo[inline]{Miscellaneous bits leftover from initial discussion below}
-Branch GRM captures old and recent ancestry, while genotype GRM captures less of the recent ancestry
-\citep[e.g.]{fan2022genealogical, young2022discovering}, suggesting that there would be no need to combine genotype GRM with pedigree GRM in certain applications spanning a wide range of relatedness \citep[e.g.]{vanraden2008efficient, kemper2021phenotypic}.
-
-\todo[inline]{TODO: Paragraph on tslmm}
-
-\todo[inline]{Future work: work across multiple tree sequences to manage multiple chromosomes}
-
-\peter{Omit this probably:}
-A recurring theme when comparing different notions of relatedness
-is the sort of information used:
-% for instance, the introduction of common genotyping led to the phrase ``genotypes provide realised GRM, while the pedigree provides expected GRM''.
-for instance, pedigree relatedness averages over genetic relatedness,
-while branch relatedness averages over mutation within a given ARG
-(which would itself be nested within the population pedigree, if that were known).
-So, we saw that expected branch relatedness can be simply related
-to pedigree relatedness, but there is substantial variation
-in the amount of branch relatedness realized between any pair of relatives,
-especially on single chromosomes.
-(However, there is very little remaining variation of genetic relatedness
-given branch relatedness due to the action of mutation \citep{ralph2019empirical}.)
+% Outlook paragraph
+This work provides the definition of branch relatedness based on a concrete trait model,
+algorithms to efficiently compute with the corresponding branch GRM for millions of genomes, and
+well documented and thoroughly tested open-source \tskit{} implementation.
+%
+These contributions are further opening a possibility for mega-scale population genetics and
+quantitative genetics.
+%
+The clear definition of branch relatedness
+(based on the fundamental ARG encoding of sampled genomes, a trait model
+extendable with additional biological prior information)
+will enhance the analyses of diverse and admixed genomic datasets
+that are challenged by many evolutionary processes and data availability
+\citep[e.g.][]{MacLeod2014Effects, Martin2017Human, durvasula2021negative,
+wang2022challenges, yair2022population, RosFreixedes2022Genomic}.
+%
+The efficient branch GRM-vector product algorithm will speed-up
+analyses of population structure, genome-wide associations,
+heritability, and genomic prediction.
